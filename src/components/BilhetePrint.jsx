@@ -86,10 +86,11 @@ const NoticeType = styled.p`
 const Content = styled.div`
   min-height: ${props => props.$qty === 4 ? '40px' : '60px'};
   margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 
-  p { margin-bottom: 8px; }
-  ul, ol { margin-left: 20px; margin-bottom: 10px; }
+  p { margin: 0 0 8px 0; }
+  ul, ol { margin: 0 0 10px 20px; }
   li { margin-bottom: 4px; }
   strong { font-weight: bold; }
   em { font-style: italic; }

@@ -771,7 +771,6 @@ const BilheteGeneratorPanel = () => {
                 fontSize: `${formData.contentFontSize || 12}px`, 
                 textAlign: formData.contentAlign || 'justify',
                 lineHeight: formData.lineHeight || 1.5, 
-                whiteSpace: 'pre-wrap', 
                 marginBottom: '20px',
                 fontWeight: formData.isBold ? 'bold' : 'normal',
                 fontStyle: formData.isItalic ? 'italic' : 'normal',

@@ -92,13 +92,7 @@ const Content = styled.div`
   text-justify: inter-word;
   display: block;
   width: 100%;
-
-  p { margin: 0 0 8px 0; line-height: inherit; text-align: inherit; }
-  ul, ol { margin: 0 0 10px 20px; }
-  li { margin-bottom: 4px; }
-  strong { font-weight: bold; }
-  em { font-style: italic; }
-  u { text-decoration: underline; }
+  white-space: pre-wrap;
 `;
 
 const Footer = styled.div`
@@ -201,8 +195,9 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     fontWeight: isBold ? 'bold' : 'normal',
                     fontStyle: isItalic ? 'italic' : 'normal'
                   }}
-                  dangerouslySetInnerHTML={{ __html: content }}
-                />
+                >
+                  {content}
+                </Content>
 
                 <DateText 
                   $qty={qtyPerPage}

@@ -14,8 +14,6 @@ import { useSettings } from '../context/SettingsContext';
 import { db } from '../config/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import BilhetePrint from '../components/BilhetePrint';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -141,49 +139,27 @@ const Input = styled.input`
   }
 `;
 
-const QuillWrapper = styled.div`
+const TextArea = styled.textarea`
   background: #0f0f0f;
   border: 1px solid #262626;
   border-radius: 8px;
-  overflow: hidden;
-  margin-top: 4px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 15px;
+  min-height: 200px;
+  width: 100%;
+  resize: vertical;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  transition: all 0.2s;
 
-  .ql-toolbar {
-    background: #1a1a1a;
-    border: none;
-    border-bottom: 1px solid #333;
-  }
-
-  .ql-container {
-    border: none;
-    min-height: 150px;
-    font-size: 15px;
-    color: white;
-  }
-
-  .ql-editor {
-    min-height: 150px;
-    line-height: 1.6;
-    
-    &.ql-blank::before {
-      color: #555;
-      font-style: normal;
-    }
-  }
-
-  .ql-stroke {
-    stroke: #888 !important;
-  }
-
-  .ql-fill {
-    fill: #888 !important;
-  }
-
-  .ql-picker {
-    color: #888 !important;
+  &:focus {
+    border-color: ${props => props.$primaryColor || '#ff4d4d'};
+    outline: none;
+    background: #141414;
+    box-shadow: 0 0 0 2px ${props => props.$primaryColor}22;
   }
 `;
-
 const Button = styled.button`
   background: ${props => props.$primary ? (props.$color || 'white') : '#1a1a1a'};
   color: ${props => props.$primary ? 'white' : '#aaa'};
@@ -381,7 +357,20 @@ const BilheteGeneratorPanel = () => {
 
   const replaceVariables = (text) => {
     if (!text) return '';
-    let newText = text;
+    
+    // First, strip HTML tags if they exist (legacy content)
+    let cleanedText = text.replace(/<[^>]*>/g, '');
+    
+    // Resolve common HTML entities
+    cleanedText = cleanedText
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+
+    let newText = cleanedText;
     Object.keys(formData.variables).forEach(key => {
       const value = formData.variables[key];
       const regex = new RegExp(`{${key}}`, 'g');
@@ -434,9 +423,22 @@ const BilheteGeneratorPanel = () => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const savedData = docSnap.data();
+          let content = savedData.content || '';
+          
+          // Auto-cleanup HTML if detected in saved content (legacy transition)
+          if (content.includes('<') && content.includes('>')) {
+            content = content
+              .replace(/<br\s*\/?>/gi, '\n') // Convert BR to newline
+              .replace(/<\/p>/gi, '\n')     // Convert closing P to newline
+              .replace(/<[^>]*>/g, '')      // Strip all other tags
+              .replace(/&nbsp;/g, ' ')      // Resolve nbsp
+              .trim();
+          }
+
           setFormData(prev => ({ 
             ...prev, 
             ...savedData,
+            content,
             // Ensure variables exist even in old saved data
             variables: { ...prev.variables, ...(savedData.variables || {}) }
           }));
@@ -540,22 +542,14 @@ const BilheteGeneratorPanel = () => {
                 <Input name="city" value={formData.city || ''} onChange={handleChange} $primaryColor={primaryColor} />
               </FormGroup>
               <FormGroup>
-                <label>Conteúdo (Use {"{data}, {item}, {hora}, {dia_retorno}"})</label>
-                <QuillWrapper>
-                  <ReactQuill 
-                    theme="snow" 
-                    value={formData.content || ''} 
-                    onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
-                    placeholder="Mensagem..."
-                    modules={{
-                      toolbar: [
-                        ['bold', 'italic', 'underline'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['clean']
-                      ]
-                    }}
-                  />
-                </QuillWrapper>
+                <label><Edit2 size={16} /> Conteúdo do Bilhete</label>
+                <TextArea 
+                  name="content" 
+                  value={formData.content || ''} 
+                  onChange={handleChange} 
+                  placeholder="Digite o comunicado..." 
+                  $primaryColor={primaryColor} 
+                />
               </FormGroup>
 
               {(formData.content?.includes('{data}') || formData.content?.includes('{item}') || formData.content?.includes('{hora}') || formData.content?.includes('{dia_retorno}')) && (
@@ -767,7 +761,6 @@ const BilheteGeneratorPanel = () => {
               </div>
               
               <div 
-                dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} 
                 style={{ 
                   minHeight: '80px', 
                   fontSize: `${formData.contentFontSize || 12}px`, 
@@ -781,9 +774,12 @@ const BilheteGeneratorPanel = () => {
                   wordBreak: 'normal',
                   hyphens: 'none',
                   display: 'block',
-                  width: '100%'
+                  width: '100%',
+                  whiteSpace: 'pre-wrap'
                 }}
-              />
+              >
+                {replaceVariables(formData.content) || 'Conteúdo do bilhete...'}
+              </div>
 
               <div style={{ 
                 textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'), 

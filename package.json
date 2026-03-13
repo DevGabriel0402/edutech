@@ -19,7 +19,6 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",
     "react-hot-toast": "^2.6.0",
-    "react-quill-new": "^3.8.3",
     "react-router-dom": "^7.13.1",
     "react-to-print": "^3.3.0",
     "styled-components": "^6.3.11",

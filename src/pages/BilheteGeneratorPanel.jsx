@@ -766,20 +766,24 @@ const BilheteGeneratorPanel = () => {
                 </div>
               </div>
               
-              <div style={{ 
-                minHeight: '80px', 
-                fontSize: `${formData.contentFontSize || 12}px`, 
-                textAlign: formData.contentAlign || 'justify',
-                lineHeight: formData.lineHeight || 1.5, 
-                marginBottom: '20px',
-                fontWeight: formData.isBold ? 'bold' : 'normal',
-                fontStyle: formData.isItalic ? 'italic' : 'normal',
-                overflowWrap: 'break-word',
-                wordBreak: 'normal',
-                hyphens: 'none'
-              }}>
-                <div dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} />
-              </div>
+              <div 
+                dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} 
+                style={{ 
+                  minHeight: '80px', 
+                  fontSize: `${formData.contentFontSize || 12}px`, 
+                  textAlign: formData.contentAlign || 'justify',
+                  textJustify: 'inter-word',
+                  lineHeight: formData.lineHeight || 1.5, 
+                  marginBottom: '20px',
+                  fontWeight: formData.isBold ? 'bold' : 'normal',
+                  fontStyle: formData.isItalic ? 'italic' : 'normal',
+                  overflowWrap: 'anywhere',
+                  wordBreak: 'normal',
+                  hyphens: 'none',
+                  display: 'block',
+                  width: '100%'
+                }}
+              />
 
               <div style={{ 
                 textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'), 

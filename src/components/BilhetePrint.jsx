@@ -86,11 +86,14 @@ const NoticeType = styled.p`
 const Content = styled.div`
   min-height: ${props => props.$qty === 4 ? '40px' : '60px'};
   margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
-  overflow-wrap: break-word !important;
+  overflow-wrap: anywhere !important;
   word-break: normal !important;
   hyphens: none !important;
+  text-justify: inter-word;
+  display: block;
+  width: 100%;
 
-  p { margin: 0 0 8px 0; }
+  p { margin: 0 0 8px 0; line-height: inherit; text-align: inherit; }
   ul, ol { margin: 0 0 10px 20px; }
   li { margin-bottom: 4px; }
   strong { font-weight: bold; }

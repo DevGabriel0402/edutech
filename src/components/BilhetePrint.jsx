@@ -86,7 +86,7 @@ const NoticeType = styled.p`
 const Content = styled.div`
   min-height: ${props => props.$qty === 4 ? '40px' : '60px'};
   margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
-  overflow-wrap: normal !important;
+  overflow-wrap: break-word !important;
   word-break: normal !important;
   hyphens: none !important;
 

@@ -777,7 +777,7 @@ const BilheteGeneratorPanel = () => {
                   marginBottom: '20px',
                   fontWeight: formData.isBold ? 'bold' : 'normal',
                   fontStyle: formData.isItalic ? 'italic' : 'normal',
-                  overflowWrap: 'anywhere',
+                  overflowWrap: 'break-word',
                   wordBreak: 'normal',
                   hyphens: 'none',
                   display: 'block',

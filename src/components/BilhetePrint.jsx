@@ -180,7 +180,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     flexDirection: titleAlign === 'right' ? 'row-reverse' : 'row'
                   }}
                 >
-                  <Logo src="/src/assets/logo-escola.png" alt="Logo" $size={logoSize} />
+                  <Logo src="/logo-escola.png" alt="Logo" $size={logoSize} />
                   <HeaderContent>
                     <SchoolName style={{ fontSize: `${schoolFontSize}pt` }}>{schoolName}</SchoolName>
                     <NoticeType style={{ color: textColor }}>Comunicado Escolar</NoticeType>
@@ -194,7 +194,9 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     textAlign: contentAlign,
                     lineHeight: lineHeight,
                     fontWeight: isBold ? 'bold' : 'normal',
-                    fontStyle: isItalic ? 'italic' : 'normal'
+                    fontStyle: isItalic ? 'italic' : 'normal',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'normal'
                   }}
                   dangerouslySetInnerHTML={{ __html: content }}
                 />

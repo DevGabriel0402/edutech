@@ -385,7 +385,7 @@ const BilheteGeneratorPanel = () => {
     Object.keys(formData.variables).forEach(key => {
       const value = formData.variables[key];
       const regex = new RegExp(`{${key}}`, 'g');
-      newText = newText.replace(regex, value !== undefined && value !== null && value !== '' ? value : `{${key}}`);
+      newText = newText.replace(regex, (value !== undefined && value !== null && value !== '') ? value : `{${key}}`);
     });
     return newText;
   };
@@ -759,23 +759,25 @@ const BilheteGeneratorPanel = () => {
                 textAlign: formData.titleAlign || 'left',
                 flexDirection: formData.titleAlign === 'right' ? 'row-reverse' : 'row'
               }}>
-                <img src="/src/assets/logo-escola.png" alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
+                <img src="/logo-escola.png" alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: `${formData.schoolFontSize || 16}px`, textTransform: 'uppercase', lineHeight: 1.1 }}>{formData.schoolName || 'Escola'}</div>
                   <div style={{ fontSize: '10px', color: formData.textColor || '#000000', opacity: 0.7 }}>Comunicado Escolar</div>
                 </div>
               </div>
               
-              <div style={{ 
-                minHeight: '80px', 
-                fontSize: `${formData.contentFontSize || 12}px`, 
-                textAlign: formData.contentAlign || 'justify',
-                lineHeight: formData.lineHeight || 1.5, 
-                whiteSpace: 'pre-wrap', 
-                marginBottom: '20px',
-                fontWeight: formData.isBold ? 'bold' : 'normal',
-                fontStyle: formData.isItalic ? 'italic' : 'normal'
-              }}>
+                style={{ 
+                  minHeight: '80px', 
+                  fontSize: `${formData.contentFontSize || 12}px`, 
+                  textAlign: formData.contentAlign || 'justify',
+                  lineHeight: formData.lineHeight || 1.5, 
+                  whiteSpace: 'pre-wrap', 
+                  marginBottom: '20px',
+                  fontWeight: formData.isBold ? 'bold' : 'normal',
+                  fontStyle: formData.isItalic ? 'italic' : 'normal',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'normal'
+                }}
                 <div dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} />
               </div>
 

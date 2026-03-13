@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import schoolLogo from '../assets/logo-escola.png';
 
 const PrintContainer = styled.div`
   width: 210mm;
@@ -179,7 +180,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     flexDirection: titleAlign === 'right' ? 'row-reverse' : 'row'
                   }}
                 >
-                  <Logo src="/logo-escola.png" alt="Logo" $size={logoSize} />
+                  <Logo src={schoolLogo} alt="Logo" $size={logoSize} />
                   <HeaderContent>
                     <SchoolName style={{ fontSize: `${schoolFontSize}pt` }}>{schoolName}</SchoolName>
                     <NoticeType style={{ color: textColor }}>Comunicado Escolar</NoticeType>

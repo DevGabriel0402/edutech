@@ -14,6 +14,7 @@ import { useSettings } from '../context/SettingsContext';
 import { db } from '../config/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import BilhetePrint from '../components/BilhetePrint';
+import schoolLogo from '../assets/logo-escola.png';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -753,7 +754,7 @@ const BilheteGeneratorPanel = () => {
                 textAlign: formData.titleAlign || 'left',
                 flexDirection: formData.titleAlign === 'right' ? 'row-reverse' : 'row'
               }}>
-                <img src="/logo-escola.png" alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
+                <img src={schoolLogo} alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: `${formData.schoolFontSize || 16}px`, textTransform: 'uppercase', lineHeight: 1.1 }}>{formData.schoolName || 'Escola'}</div>
                   <div style={{ fontSize: '10px', color: formData.textColor || '#000000', opacity: 0.7 }}>Comunicado Escolar</div>

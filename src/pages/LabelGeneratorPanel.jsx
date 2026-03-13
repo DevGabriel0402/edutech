@@ -4,6 +4,7 @@ import { Tag, Printer, Hash, Type, Plus, Info, Layout, ChevronDown, Palette, Che
 import { useReactToPrint } from 'react-to-print';
 import toast from 'react-hot-toast';
 import { useSettings } from '../context/SettingsContext';
+import schoolLogo from '../assets/logo-escola.png';
 import LabelPrint from '../components/LabelPrint';
 
 const PageContainer = styled.div`
@@ -455,7 +456,7 @@ const LabelGeneratorPanel = () => {
                   alignItems: 'center', 
                   justifyContent: 'center' 
                 }}>
-                  <img src={formData.logo} alt="Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                  <img src={schoolLogo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
               )}
               <div style={{ 

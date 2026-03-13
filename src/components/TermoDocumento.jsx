@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
+import schoolLogo from '../assets/logo-escola.png';
 import { FileCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -169,7 +170,7 @@ const TermoDocumento = forwardRef(({ data, isReturn, dataEntrega }, ref) => {
           
           <Header>
             <Logo>
-              <img src={LogoEscola} alt="Logo Institucional" />
+              <img src={schoolLogo} alt="Logo da Escola" />
             </Logo>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '12pt', fontWeight: 800, color: '#1a1a1a', textTransform: 'uppercase' }}>

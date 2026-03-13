@@ -766,18 +766,18 @@ const BilheteGeneratorPanel = () => {
                 </div>
               </div>
               
-                style={{ 
-                  minHeight: '80px', 
-                  fontSize: `${formData.contentFontSize || 12}px`, 
-                  textAlign: formData.contentAlign || 'justify',
-                  lineHeight: formData.lineHeight || 1.5, 
-                  whiteSpace: 'pre-wrap', 
-                  marginBottom: '20px',
-                  fontWeight: formData.isBold ? 'bold' : 'normal',
-                  fontStyle: formData.isItalic ? 'italic' : 'normal',
-                  overflowWrap: 'break-word',
-                  wordBreak: 'normal'
-                }}
+              <div style={{ 
+                minHeight: '80px', 
+                fontSize: `${formData.contentFontSize || 12}px`, 
+                textAlign: formData.contentAlign || 'justify',
+                lineHeight: formData.lineHeight || 1.5, 
+                whiteSpace: 'pre-wrap', 
+                marginBottom: '20px',
+                fontWeight: formData.isBold ? 'bold' : 'normal',
+                fontStyle: formData.isItalic ? 'italic' : 'normal',
+                overflowWrap: 'break-word',
+                wordBreak: 'normal'
+              }}>
                 <div dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} />
               </div>
 

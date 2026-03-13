@@ -1,0 +1,52 @@
+query ListAllProjects @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  projects {
+    id
+    name
+    description
+    createdAt
+    owner {
+      displayName
+      email
+    }
+  }
+}
+
+mutation CreateNewTask($title: String!, $status: String!, $description: String, $dueDate: Date, $projectId: UUID!) @auth(level: USER) {
+  task_insert(
+    data: {
+      title: $title
+      status: $status
+      description: $description
+      dueDate: $dueDate
+      projectId: $projectId
+      creatorId_expr: "auth.uid"
+      createdAt_expr: "request.time"
+    }
+  )
+}
+
+query GetMyTasks @auth(level: USER) {
+  tasks(where: {creatorId: {eq_expr: "auth.uid"}}) {
+    id
+    title
+    status
+    dueDate
+    project {
+      name
+    }
+    assignee {
+      displayName
+    }
+  }
+}
+
+mutation AddCommentToIdea($ideaId: UUID!, $content: String!) @auth(level: USER) {
+  comment_insert(
+    data: {
+      ideaId: $ideaId
+      content: $content
+      userId_expr: "auth.uid"
+      createdAt_expr: "request.time"
+    }
+  )
+}

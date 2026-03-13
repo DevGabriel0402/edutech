@@ -1,0 +1,92 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "This is seed data and should be run by an authenticated user, typically an admin.") {
+  user_upsertMany(data: [
+    {
+      id: "c4604e7b-2e90-4180-87a7-1901b0f1464c",
+      displayName: "Alice Smith",
+      email: "alice.smith@example.com",
+      createdAt: "2023-01-01T10:00:00Z"
+    },
+    {
+      id: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab",
+      displayName: "Bob Johnson",
+      email: "bob.johnson@example.com",
+      createdAt: "2023-01-02T11:00:00Z"
+    }
+  ])
+  project_upsertMany(data: [
+    {
+      id: "b2e4f6a8-d1c3-5b7f-9e0a-1a2b3c4d5e6f",
+      name: "Project Alpha",
+      description: "First project for demo purposes.",
+      createdAt: "2023-01-03T12:00:00Z",
+      ownerId: "c4604e7b-2e90-4180-87a7-1901b0f1464c"
+    },
+    {
+      id: "f1a3c5e7-b9d0-2a4c-6e80-8a9b0c1d2e3f",
+      name: "Project Beta",
+      description: "Second project, more advanced features.",
+      createdAt: "2023-01-04T13:00:00Z",
+      ownerId: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab"
+    }
+  ])
+  idea_upsertMany(data: [
+    {
+      id: "d0e2f4a6-b8c9-1d3e-5f7a-2a4b6c8d0e1f",
+      title: "New Feature Idea",
+      description: "An innovative feature for Project Alpha.",
+      createdAt: "2023-01-05T14:00:00Z",
+      projectId: "b2e4f6a8-d1c3-5b7f-9e0a-1a2b3c4d5e6f",
+      creatorId: "c4604e7b-2e90-4180-87a7-1901b0f1464c",
+      category: "Feature"
+    },
+    {
+      id: "1c3e5a7d-9b0f-2e4c-6a8b-3c5d7e9f0a1b",
+      title: "Marketing Campaign Idea",
+      description: "Ideas for promoting Project Beta.",
+      createdAt: "2023-01-06T15:00:00Z",
+      projectId: "f1a3c5e7-b9d0-2a4c-6e80-8a9b0c1d2e3f",
+      creatorId: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab",
+      category: "Marketing"
+    }
+  ])
+  task_upsertMany(data: [
+    {
+      id: "3f5a7c9e-1b2d-4f6a-8c0e-5a7b9c1d3e5f",
+      title: "Implement New Feature",
+      description: "Develop the new feature as per idea.",
+      status: "In Progress",
+      createdAt: "2023-01-07T16:00:00Z",
+      dueDate: "2023-01-20",
+      projectId: "b2e4f6a8-d1c3-5b7f-9e0a-1a2b3c4d5e6f",
+      creatorId: "c4604e7b-2e90-4180-87a7-1901b0f1464c",
+      assigneeId: "c4604e7b-2e90-4180-87a7-1901b0f1464c"
+    },
+    {
+      id: "4e6b8d0f-2a4c-6e8a-0c2e-6b8d0f2a4c6e",
+      title: "Design Marketing Materials",
+      description: "Create visuals for the marketing campaign.",
+      status: "To Do",
+      createdAt: "2023-01-08T17:00:00Z",
+      dueDate: "2023-02-15",
+      projectId: "f1a3c5e7-b9d0-2a4c-6e80-8a9b0c1d2e3f",
+      creatorId: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab",
+      assigneeId: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab"
+    }
+  ])
+  comment_upsertMany(data: [
+    {
+      id: "e9f1a3c5-d7b0-2e4c-6a8b-7c9d1e3f5a7b",
+      content: "Great idea, let's prioritize this!",
+      createdAt: "2023-01-09T18:00:00Z",
+      userId: "c4604e7b-2e90-4180-87a7-1901b0f1464c",
+      ideaId: "d0e2f4a6-b8c9-1d3e-5f7a-2a4b6c8d0e1f"
+    },
+    {
+      id: "f0b2d4e6-a8c1-3e5a-7c9d-8b0c2d4e6f8a",
+      content: "I'll start working on the wireframes.",
+      createdAt: "2023-01-10T19:00:00Z",
+      userId: "a7b3c2d1-e5f6-4a9b-8c7d-0123456789ab",
+      taskId: "3f5a7c9e-1b2d-4f6a-8c0e-5a7b9c1d3e5f"
+    }
+  ])
+}

@@ -774,7 +774,7 @@ const BilheteGeneratorPanel = () => {
                 marginBottom: '20px',
                 fontWeight: formData.isBold ? 'bold' : 'normal',
                 fontStyle: formData.isItalic ? 'italic' : 'normal',
-                overflowWrap: 'break-word',
+                overflowWrap: 'normal',
                 wordBreak: 'normal'
               }}>
                 <div dangerouslySetInnerHTML={{ __html: replaceVariables(formData.content) || 'Conteúdo do bilhete...' }} />

@@ -86,8 +86,9 @@ const NoticeType = styled.p`
 const Content = styled.div`
   min-height: ${props => props.$qty === 4 ? '40px' : '60px'};
   margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
-  overflow-wrap: break-word;
-  word-break: normal;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
 
   p { margin: 0 0 8px 0; }
   ul, ol { margin: 0 0 10px 20px; }
@@ -195,9 +196,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     textAlign: contentAlign,
                     lineHeight: lineHeight,
                     fontWeight: isBold ? 'bold' : 'normal',
-                    fontStyle: isItalic ? 'italic' : 'normal',
-                    overflowWrap: 'break-word',
-                    wordBreak: 'normal'
+                    fontStyle: isItalic ? 'italic' : 'normal'
                   }}
                   dangerouslySetInnerHTML={{ __html: content }}
                 />

@@ -23,16 +23,13 @@ const PrintContainer = styled.div`
 `;
 
 const NoticeGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-auto-rows: ${props => (297 / props.$qty)}mm;
-  gap: 0;
+  display: block;
   width: 210mm;
 `;
 
 const NoticeWrapper = styled.div`
   width: 100%;
-  padding: ${props => props.$qty === 4 ? '10mm 15mm' : (props.$paddingY || 20) + 'px ' + (props.$paddingX || 20) + 'px'};
+  padding: ${props => (props.$paddingY || 10) + 'mm ' + (props.$paddingX || 20) + 'mm'};
   box-sizing: border-box;
   page-break-inside: avoid;
   position: relative;
@@ -40,11 +37,10 @@ const NoticeWrapper = styled.div`
   color: ${props => props.$textColor || '#000000'};
   display: flex;
   flex-direction: column;
-  border-bottom: 2px dashed ${props => props.$borderColor || '#eeeeee'};
+  border-bottom: 1px dashed ${props => props.$borderColor || '#eeeeee'};
   font-family: ${props => props.$fontFamily || 'Inter'}, sans-serif;
-  height: ${props => (297 / props.$qty)}mm;
-  overflow: hidden;
-  justify-content: center;
+  min-height: 148.5mm;
+  overflow: visible;
   
   &:last-child {
     border-bottom: none;
@@ -56,8 +52,8 @@ const Header = styled.div`
   align-items: center;
   gap: 15px;
   border-bottom: 2px solid ${props => props.$borderColor || '#eeeeee'};
-  padding-bottom: 10px;
-  margin-bottom: ${props => props.$qty === 4 ? '10px' : '20px'};
+  padding-bottom: 8px;
+  margin-bottom: 15px;
 `;
 
 const Logo = styled.img`
@@ -85,8 +81,8 @@ const NoticeType = styled.p`
 `;
 
 const Content = styled.div`
-  min-height: ${props => props.$qty === 4 ? '40px' : '60px'};
-  margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
+  flex: 1;
+  margin-bottom: 10px;
   overflow-wrap: break-word !important;
   word-break: normal !important;
   hyphens: none !important;
@@ -104,7 +100,8 @@ const Footer = styled.div`
 
 const DateText = styled.div`
   font-size: 11pt;
-  margin-bottom: ${props => props.$qty === 4 ? '8px' : '15px'};
+  margin-top: 10px;
+  margin-bottom: 10px;
   width: 100%;
 `;
 
@@ -146,7 +143,11 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
     isBold = false,
     isItalic = false,
     city = 'Belo Horizonte',
-    copyCount = 4
+    copyCount = 4,
+    showSignatureLine = true,
+    showAuthorizationText = false,
+    showDate = true,
+    showLogoHeader = true
   } = data;
   
   const finalSignatory = signatory === 'custom' ? customSignatory : signatory;
@@ -172,20 +173,22 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                 $fontFamily={fontFamily}
                 $isLeft={isLeft}
               >
-                <Header 
-                  $borderColor={borderColor}
-                  style={{ 
-                    textAlign: titleAlign,
-                    justifyContent: titleAlign === 'center' ? 'center' : (titleAlign === 'right' ? 'flex-end' : 'flex-start'),
-                    flexDirection: titleAlign === 'right' ? 'row-reverse' : 'row'
-                  }}
-                >
-                  <Logo src={schoolLogo} alt="Logo" $size={logoSize} />
-                  <HeaderContent>
-                    <SchoolName style={{ fontSize: `${schoolFontSize}pt` }}>{schoolName}</SchoolName>
-                    <NoticeType style={{ color: textColor }}>Comunicado Escolar</NoticeType>
-                  </HeaderContent>
-                </Header>
+                {showLogoHeader && (
+                  <Header 
+                    $borderColor={borderColor}
+                    style={{ 
+                      textAlign: titleAlign,
+                      justifyContent: titleAlign === 'center' ? 'center' : (titleAlign === 'right' ? 'flex-end' : 'flex-start'),
+                      flexDirection: titleAlign === 'right' ? 'row-reverse' : 'row'
+                    }}
+                  >
+                    <Logo src={schoolLogo} alt="Logo" $size={logoSize} />
+                    <HeaderContent>
+                      <SchoolName style={{ fontSize: `${schoolFontSize}pt` }}>{schoolName}</SchoolName>
+                      <NoticeType style={{ color: textColor }}>Comunicado Escolar</NoticeType>
+                    </HeaderContent>
+                  </Header>
+                )}
 
                 <Content 
                   $qty={qtyPerPage}
@@ -200,15 +203,33 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                   {content}
                 </Content>
 
-                <DateText 
-                  $qty={qtyPerPage}
-                  style={{ 
-                    textAlign: signatureAlign === 'justify' ? 'right' : signatureAlign,
-                    opacity: 0.8
-                  }}
-                >
-                  {city}, {currentDate}.
-                </DateText>
+                {showAuthorizationText && (
+                  <div style={{ 
+                    marginTop: '5mm', 
+                    fontSize: `${contentFontSize}pt`,
+                    marginBottom: '5mm'
+                  }}>
+                    <div style={{ marginBottom: '5mm' }}>
+                      Autorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da atividade acima referida.
+                    </div>
+                    <div style={{ marginTop: '10mm', textAlign: 'center' }}>
+                      <div style={{ width: '80mm', borderTop: '0.2mm solid black', margin: '0 auto 1.5mm' }} />
+                      <div style={{ fontSize: `${contentFontSize * 0.9}pt` }}>Assinatura dos pais ou responsável</div>
+                    </div>
+                  </div>
+                )}
+
+                {showDate && (
+                  <DateText 
+                    $qty={qtyPerPage}
+                    style={{ 
+                      textAlign: signatureAlign === 'justify' ? 'right' : signatureAlign,
+                      opacity: 0.8
+                    }}
+                  >
+                    {city}, {currentDate}.
+                  </DateText>
+                )}
 
                 <Footer 
                   $qty={qtyPerPage}
@@ -216,7 +237,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     alignItems: signatureAlign === 'left' ? 'flex-start' : (signatureAlign === 'right' ? 'flex-end' : 'center')
                   }}
                 >
-                  <SignatureLine $qty={qtyPerPage} $textColor={textColor} />
+                  {showSignatureLine && <SignatureLine $qty={qtyPerPage} $textColor={textColor} />}
                   <SignatoryName style={{ fontSize: `${signatoryFontSize}pt` }}>{finalSignatory}</SignatoryName>
                 </Footer>
               </NoticeWrapper>

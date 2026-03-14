@@ -6,7 +6,7 @@ import {
   Mail, Printer, Layout, Type, Edit2, Save, ChevronDown, 
   User, Info, PlusCircle, Palette, AlignLeft, AlignCenter, 
   AlignRight, AlignJustify, Share2, Clipboard, Database, Calendar,
-  Bold, Italic, Maximize, Move
+  Bold, Italic, Maximize, Move, CheckCircle as CheckIcon
 } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import toast from 'react-hot-toast';
@@ -255,6 +255,37 @@ const Select = styled.select`
   }
 `;
 
+const CheckboxGroup = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+`;
+
+const CheckboxItem = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: ${props => props.$active ? (props.$color + '14') : '#0f0f0f'};
+  border: 1px solid ${props => props.$active ? props.$color : '#262626'};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  color: ${props => props.$active ? 'white' : '#888'};
+  font-weight: 600;
+
+  &:hover {
+    border-color: ${props => props.$color};
+    background: ${props => props.$active ? (props.$color + '1a') : '#141414'};
+  }
+
+  input {
+    display: none;
+  }
+`;
+
 const ColorInput = styled.input`
   width: 100%;
   height: 40px;
@@ -314,6 +345,12 @@ const PRESET_TEMPLATES = [
     name: 'Convocação Reunião',
     text: 'Convidamos os responsáveis para uma reunião pedagógica no dia {data} às {hora}. Sua presença é fundamental!',
     icon: <User size={16} />
+  },
+  {
+    id: 'aula_passeio',
+    name: 'Aula-Passeio',
+    text: 'COMUNICADO – AULA PASSEIO\n\nPrezados responsáveis,\n\nInformamos que no dia {data}, {dia_semana}, as alunas e alunos do {turma} participarão de uma aula-passeio ao {local}. \n\nÉ FUNDAMENTAL QUE O ALUNO QUE RECEBER ESTE BILHETE TRAGA A AUTORIZAÇÃO E NÃO FALTE NO DIA, PARA QUE A VAGA DE TODOS SEJA GARANTIDA.\n\nA visita acontecerá no horário normal de aula, com chegada às {hora}. O transporte será feito por ônibus fretado pela escola. É necessário estar uniformizado e com sapato fechado. Os alunos serão acompanhados pelo Professor {professor}.\n\nPara que o aluno participe, o responsável precisa assinar a autorização abaixo:\n\nAutorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da aula passeio acima referida.\n\n________________________________________________\nAssinatura dos pais ou responsável',
+    icon: <Move size={16} />
   }
 ];
 
@@ -336,21 +373,29 @@ const BilheteGeneratorPanel = () => {
     contentAlign: 'justify',
     signatureAlign: 'center',
     titleAlign: 'left',
-    logoSize: 40,
-    lineHeight: 1.5,
+    logoSize: 35,
+    lineHeight: 1.4,
     paddingX: 20,
-    paddingY: 20,
+    paddingY: 10,
     bgColor: '#ffffff',
     textColor: '#000000',
     borderColor: '#eeeeee',
     fontFamily: 'Inter',
     isBold: false,
     isItalic: false,
+    showSignatureLine: true,
+    showAuthorizationText: false,
+    showDate: true,
+    showLogoHeader: true,
     variables: {
       data: format(new Date(), 'dd/MM'),
       dia_retorno: '',
       item: '',
-      hora: ''
+      hora: '',
+      dia_semana: '',
+      turma: '',
+      local: '',
+      professor: ''
     }
   });
 
@@ -553,37 +598,32 @@ const BilheteGeneratorPanel = () => {
                 />
               </FormGroup>
 
-              {(formData.content?.includes('{data}') || formData.content?.includes('{item}') || formData.content?.includes('{hora}') || formData.content?.includes('{dia_retorno}')) && (
-                <div style={{ background: '#141414', padding: '15px', borderRadius: '8px', marginTop: '10px', marginBottom: '20px' }}>
-                  <div style={{ fontSize: '11px', color: '#666', marginBottom: '10px', fontWeight: 800, textTransform: 'uppercase' }}>Variáveis:</div>
-                  <ControlGrid>
-                    {formData.content.includes('{data}') && (
-                      <FormGroup>
-                        <label>Data</label>
-                        <Input name="data" value={formData.variables.data || ''} onChange={handleVariableChange} $primaryColor={primaryColor} />
-                      </FormGroup>
-                    )}
-                    {formData.content.includes('{dia_retorno}') && (
-                      <FormGroup>
-                        <label>Retorno</label>
-                        <Input name="dia_retorno" value={formData.variables.dia_retorno || ''} onChange={handleVariableChange} $primaryColor={primaryColor} />
-                      </FormGroup>
-                    )}
-                    {formData.content.includes('{item}') && (
-                      <FormGroup>
-                        <label>Item</label>
-                        <Input name="item" value={formData.variables.item || ''} onChange={handleVariableChange} $primaryColor={primaryColor} />
-                      </FormGroup>
-                    )}
-                    {formData.content.includes('{hora}') && (
-                      <FormGroup>
-                        <label>Hora</label>
-                        <Input name="hora" value={formData.variables.hora || ''} onChange={handleVariableChange} $primaryColor={primaryColor} />
-                      </FormGroup>
-                    )}
-                  </ControlGrid>
-                </div>
-              )}
+              {(() => {
+                const variableMatches = formData.content?.match(/{([^{}]+)}/g) || [];
+                const uniqueVariables = [...new Set(variableMatches.map(m => m.replace(/[{}]/g, '')))];
+                
+                if (uniqueVariables.length === 0) return null;
+
+                return (
+                  <div style={{ background: '#141414', padding: '15px', borderRadius: '8px', marginTop: '10px', marginBottom: '20px' }}>
+                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '10px', fontWeight: 800, textTransform: 'uppercase' }}>Variáveis Detectadas:</div>
+                    <ControlGrid>
+                      {uniqueVariables.map(variable => (
+                        <FormGroup key={variable}>
+                          <label style={{ textTransform: 'capitalize' }}>{variable.replace('_', ' ')}</label>
+                          <Input 
+                            name={variable} 
+                            value={formData.variables[variable] || ''} 
+                            onChange={handleVariableChange} 
+                            $primaryColor={primaryColor} 
+                            placeholder={`Valor para {${variable}}`}
+                          />
+                        </FormGroup>
+                      ))}
+                    </ControlGrid>
+                  </div>
+                );
+              })()}
               <FormGroup style={{ width: '100%' }}>
                 <label>Quantidade Total de Cópias</label>
                 <Input type="number" name="copyCount" value={formData.copyCount || ''} onChange={handleChange} $primaryColor={primaryColor} />
@@ -723,6 +763,32 @@ const BilheteGeneratorPanel = () => {
                   </div>
                 </FormGroup>
               </div>
+
+              <div style={{ marginTop: '20px' }}>
+                <label style={{ fontSize: '11px', color: '#666', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', display: 'block' }}>Opções de Visibilidade</label>
+                <CheckboxGroup>
+                  <CheckboxItem $active={formData.showLogoHeader} $color={primaryColor}>
+                    <input type="checkbox" checked={formData.showLogoHeader} onChange={() => setFormData(p => ({...p, showLogoHeader: !p.showLogoHeader}))} />
+                    {formData.showLogoHeader ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    Exibir Logo
+                  </CheckboxItem>
+                  <CheckboxItem $active={formData.showSignatureLine} $color={primaryColor}>
+                    <input type="checkbox" checked={formData.showSignatureLine} onChange={() => setFormData(p => ({...p, showSignatureLine: !p.showSignatureLine}))} />
+                    {formData.showSignatureLine ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    Linha Assinatura
+                  </CheckboxItem>
+                  <CheckboxItem $active={formData.showDate} $color={primaryColor}>
+                    <input type="checkbox" checked={formData.showDate} onChange={() => setFormData(p => ({...p, showDate: !p.showDate}))} />
+                    {formData.showDate ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    Exibir Data
+                  </CheckboxItem>
+                  <CheckboxItem $active={formData.showAuthorizationText} $color={primaryColor}>
+                    <input type="checkbox" checked={formData.showAuthorizationText} onChange={() => setFormData(p => ({...p, showAuthorizationText: !p.showAuthorizationText}))} />
+                    {formData.showAuthorizationText ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    Autorização Básica
+                  </CheckboxItem>
+                </CheckboxGroup>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Card>
@@ -743,23 +809,25 @@ const BilheteGeneratorPanel = () => {
               padding: `${formData.paddingY || 20}px ${formData.paddingX || 20}px`,
               fontFamily: formData.fontFamily || 'Inter'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: formData.titleAlign === 'center' ? 'center' : (formData.titleAlign === 'right' ? 'flex-end' : 'flex-start'),
-                gap: '15px', 
-                borderBottom: `1px solid ${formData.borderColor || '#eeeeee'}`, 
-                paddingBottom: '10px', 
-                marginBottom: '15px',
-                textAlign: formData.titleAlign || 'left',
-                flexDirection: formData.titleAlign === 'right' ? 'row-reverse' : 'row'
-              }}>
-                <img src={schoolLogo} alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 800, fontSize: `${formData.schoolFontSize || 16}px`, textTransform: 'uppercase', lineHeight: 1.1 }}>{formData.schoolName || 'Escola'}</div>
-                  <div style={{ fontSize: '10px', color: formData.textColor || '#000000', opacity: 0.7 }}>Comunicado Escolar</div>
+              {formData.showLogoHeader && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: formData.titleAlign === 'center' ? 'center' : (formData.titleAlign === 'right' ? 'flex-end' : 'flex-start'),
+                  gap: '15px', 
+                  borderBottom: `1px solid ${formData.borderColor || '#eeeeee'}`, 
+                  paddingBottom: '10px', 
+                  marginBottom: '15px',
+                  textAlign: formData.titleAlign || 'left',
+                  flexDirection: formData.titleAlign === 'right' ? 'row-reverse' : 'row'
+                }}>
+                  <img src={schoolLogo} alt="Logo" style={{ width: `${formData.logoSize || 40}px`, height: `${formData.logoSize || 40}px`, objectFit: 'contain' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: `${formData.schoolFontSize || 16}px`, textTransform: 'uppercase', lineHeight: 1.1 }}>{formData.schoolName || 'Escola'}</div>
+                    <div style={{ fontSize: '10px', color: formData.textColor || '#000000', opacity: 0.7 }}>Comunicado Escolar</div>
+                  </div>
                 </div>
-              </div>
+              )}
               
               <div 
                 style={{ 
@@ -782,21 +850,39 @@ const BilheteGeneratorPanel = () => {
                 {replaceVariables(formData.content) || 'Conteúdo do bilhete...'}
               </div>
 
-              <div style={{ 
-                textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'), 
-                fontSize: '11px', 
-                marginBottom: '10px',
-                opacity: 0.8
-              }}>
-                {formData.city || 'Cidade'}, {format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}.
-              </div>
+              {formData.showAuthorizationText && (
+                <div style={{ 
+                  marginTop: '15px', 
+                  fontSize: `${formData.contentFontSize || 12}px`,
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ marginBottom: '15px' }}>
+                    Autorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da atividade acima referida.
+                  </div>
+                  <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                    <div style={{ width: '250px', borderTop: '1px solid black', margin: '0 auto 5px' }} />
+                    <div style={{ fontSize: `${(formData.contentFontSize || 12) * 0.9}px` }}>Assinatura dos pais ou responsável</div>
+                  </div>
+                </div>
+              )}
+
+              {formData.showDate && (
+                <div style={{ 
+                  textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'), 
+                  fontSize: '11px', 
+                  marginBottom: '10px',
+                  opacity: 0.8
+                }}>
+                  {formData.city || 'Cidade'}, {format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}.
+                </div>
+              )}
 
               <div style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: formData.signatureAlign === 'left' ? 'flex-start' : (formData.signatureAlign === 'right' ? 'flex-end' : 'center') 
               }}>
-                <div style={{ width: '150px', borderTop: `1px solid ${formData.textColor || '#000000'}`, marginBottom: '4px', opacity: 0.5 }} />
+                {formData.showSignatureLine && <div style={{ width: '150px', borderTop: `1px solid ${formData.textColor || '#000000'}`, marginBottom: '4px', opacity: 0.5 }} />}
                 <div style={{ fontWeight: 700, fontSize: `${formData.signatoryFontSize || 11}px`, textTransform: 'uppercase' }}>
                   {formData.signatory === 'custom' ? (formData.customSignatory || 'Assinatura') : (formData.signatory || 'Direção')}
                 </div>

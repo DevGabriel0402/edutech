@@ -262,7 +262,7 @@ const LabelGeneratorPanel = () => {
     quantity: '10',
     startNumber: '1',
     imagePosition: 'left',
-    logo: '/src/assets/logo-escola.png'
+    logo: schoolLogo
   });
 
   const [openSection, setOpenSection] = useState('dimensions');

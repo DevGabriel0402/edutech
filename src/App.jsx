@@ -5,10 +5,13 @@ import GeradorPanel from './pages/GeradorPanel';
 import InventoryPanel from './pages/InventoryPanel';
 import LabelGeneratorPanel from './pages/LabelGeneratorPanel';
 import BilheteGeneratorPanel from './pages/BilheteGeneratorPanel';
+import Login from './pages/Login';
 import DashboardLayout from './components/DashboardLayout';
 import SplashScreen from './components/SplashScreen';
 import SettingsPanel from './pages/SettingsPanel';
+import AuthGuard from './components/AuthGuard';
 import { SettingsProvider, useSettings } from './context/SettingsContext';
+import { AuthProvider } from './context/AuthContext';
 
 function AppContent() {
   const { loading: settingsLoading } = useSettings();
@@ -26,7 +29,6 @@ function AppContent() {
   return (
     <Router>
       <Toaster 
-        /* keeps current Toaster config */
         position="top-right"
         toastOptions={{
           duration: 3000,
@@ -52,39 +54,49 @@ function AppContent() {
         }}
       />
       <Routes>
+        <Route path="/login" element={<Login />} />
+        
         <Route path="/" element={<Navigate to="/gerador-de-termos" replace />} />
         
         <Route path="/gerador-de-termos" element={
-          <DashboardLayout>
-            <GeradorPanel />
-          </DashboardLayout>
+          <AuthGuard>
+            <DashboardLayout>
+              <GeradorPanel />
+            </DashboardLayout>
+          </AuthGuard>
         } />
         
         <Route path="/inventario" element={
-          <DashboardLayout>
-            <InventoryPanel />
-          </DashboardLayout>
+          <AuthGuard>
+            <DashboardLayout>
+              <InventoryPanel />
+            </DashboardLayout>
+          </AuthGuard>
         } />
 
         <Route path="/etiquetas" element={
-          <DashboardLayout>
-            <LabelGeneratorPanel />
-          </DashboardLayout>
+          <AuthGuard>
+            <DashboardLayout>
+              <LabelGeneratorPanel />
+            </DashboardLayout>
+          </AuthGuard>
         } />
 
         <Route path="/bilhetes" element={
-          <DashboardLayout>
-            <BilheteGeneratorPanel />
-          </DashboardLayout>
+          <AuthGuard>
+            <DashboardLayout>
+              <BilheteGeneratorPanel />
+            </DashboardLayout>
+          </AuthGuard>
         } />
 
         <Route path="/configuracoes" element={
-          <DashboardLayout>
-            <SettingsPanel />
-          </DashboardLayout>
+          <AuthGuard>
+            <DashboardLayout>
+              <SettingsPanel />
+            </DashboardLayout>
+          </AuthGuard>
         } />
-        
-        <Route path="/logout" element={<Navigate to="/" replace />} />
         
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -94,9 +106,11 @@ function AppContent() {
 
 function App() {
   return (
-    <SettingsProvider>
-      <AppContent />
-    </SettingsProvider>
+    <AuthProvider>
+      <SettingsProvider>
+        <AppContent />
+      </SettingsProvider>
+    </AuthProvider>
   );
 }
 

@@ -336,6 +336,55 @@ const StatusBadge = styled.span`
   }};
 `;
 
+const TooltipWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: help;
+
+  &:hover > div {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+`;
+
+const TooltipContent = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #1a1a1a;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  width: max-content;
+  max-width: 200px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #333;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-bottom: 10px;
+  pointer-events: none;
+  font-weight: 500;
+  line-height: 1.4;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+`;
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -648,7 +697,15 @@ const InventoryPanel = () => {
                   </Td>
                   <Td>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span>{item.marca}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>{item.marca}</span>
+                        {item.observacoes && (
+                          <TooltipWrapper>
+                            <AlertCircle size={14} style={{ color: '#f59e0b' }} />
+                            <TooltipContent>{item.observacoes}</TooltipContent>
+                          </TooltipWrapper>
+                        )}
+                      </div>
                       <span style={{ fontSize: '12px', color: '#666' }}>{item.modelo}</span>
                     </div>
                   </Td>
@@ -917,6 +974,15 @@ const InventoryPanel = () => {
                     placeholder="Ex: Lab de Informática, Secretaria"
                     value={formData.localizacao}
                     onChange={e => setFormData({ ...formData, localizacao: e.target.value })}
+                  />
+                </FormGroup>
+                <FormGroup style={{ gridColumn: 'span 2' }}>
+                  <label>Observações</label>
+                  <textarea
+                    placeholder="Ex: Tecla 'A' falhando, Tela com arranhão leve..."
+                    value={formData.observacoes}
+                    onChange={e => setFormData({ ...formData, observacoes: e.target.value })}
+                    style={{ minHeight: '80px', resize: 'vertical' }}
                   />
                 </FormGroup>
               </FormGrid>

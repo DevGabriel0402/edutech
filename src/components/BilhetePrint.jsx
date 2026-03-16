@@ -47,6 +47,27 @@ const NoticeWrapper = styled.div`
   }
 `;
 
+const Watermark = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: ${props => props.$size}px;
+  height: ${props => props.$size}px;
+  opacity: 0.1;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`;
+
 const Header = styled.div`
   display: flex;
   align-items: center;
@@ -147,7 +168,10 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
     showSignatureLine = true,
     showAuthorizationText = false,
     showDate = true,
-    showLogoHeader = true
+    showLogoHeader = true,
+    showWatermark = false,
+    watermarkSize = 300,
+    fullPageCentering = false
   } = data;
   
   const finalSignatory = signatory === 'custom' ? customSignatory : signatory;
@@ -169,10 +193,20 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                 $borderColor={borderColor}
                 $paddingX={paddingX}
                 $paddingY={paddingY}
-                $qty={qtyPerPage}
                 $fontFamily={fontFamily}
                 $isLeft={isLeft}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: (qtyPerPage === '1' && fullPageCentering) ? 'center' : 'flex-start',
+                  minHeight: qtyPerPage === 4 ? '128mm' : (qtyPerPage === 2 ? '260mm' : '260mm')
+                }}
               >
+                {showWatermark && (
+                  <Watermark $size={watermarkSize}>
+                    <img src={schoolLogo} alt="Watermark" />
+                  </Watermark>
+                )}
                 {showLogoHeader && (
                   <Header 
                     $borderColor={borderColor}
@@ -210,7 +244,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                     marginBottom: '5mm'
                   }}>
                     <div style={{ marginBottom: '5mm' }}>
-                      Autorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da atividade acima referida.
+                      Autorizo o (a) aluno (a) {(data.variables?.aluno || '________________________________________').toUpperCase()}, da turma {(data.variables?.turma || '____________________').toUpperCase()} a participar da atividade acima referida.
                     </div>
                     <div style={{ marginTop: '10mm', textAlign: 'center' }}>
                       <div style={{ width: '80mm', borderTop: '0.2mm solid black', margin: '0 auto 1.5mm' }} />

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { FileText, Box, Tag, Layout, LogOut, Settings as SettingsIcon, User, Mail } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -235,8 +236,18 @@ const MainContent = styled.main`
 
 const DashboardLayout = ({ children }) => {
   const { settings } = useSettings();
+  const { userData, logout } = useAuth();
   const primaryColor = settings.primaryColor;
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <LayoutContainer>
@@ -268,10 +279,27 @@ const DashboardLayout = ({ children }) => {
 
         <div style={{ padding: '20px', borderTop: '1px solid #1a1a1a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 8px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: '12px', fontWeight: 700 }}>AD</div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ color: 'white', fontSize: '13px', fontWeight: 600 }}>Administrador</span>
-              <span style={{ color: '#555', fontSize: '11px' }}>Painel de Gestão</span>
+            <div style={{ 
+              width: '32px', 
+              height: '32px', 
+              borderRadius: '8px', 
+              background: primaryColor + '22', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: primaryColor, 
+              fontSize: '12px', 
+              fontWeight: 700 
+            }}>
+              {userData?.name?.substring(0, 2).toUpperCase() || 'GT'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <span style={{ color: 'white', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {userData?.name || 'Gestor TI'}
+              </span>
+              <span style={{ color: '#555', fontSize: '11px', textTransform: 'capitalize' }}>
+                {userData?.role || 'Painel de Gestão'}
+              </span>
             </div>
           </div>
         </div>
@@ -294,7 +322,7 @@ const DashboardLayout = ({ children }) => {
             <SettingsIcon size={18} />
             <span>Configurações</span>
           </ActionButton>
-          <LogoutButton onClick={() => navigate('/logout')}>
+          <LogoutButton onClick={handleLogout}>
             <LogOut size={18} />
             <span>Sair</span>
           </LogoutButton>

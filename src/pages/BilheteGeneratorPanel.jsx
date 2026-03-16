@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import styled from 'styled-components';
-import { 
-  Mail, Printer, Layout, Type, Edit2, Save, ChevronDown, 
-  User, Info, PlusCircle, Palette, AlignLeft, AlignCenter, 
+import {
+  Mail, Printer, Layout, Type, Edit2, Save, ChevronDown,
+  User, Info, PlusCircle, Palette, AlignLeft, AlignCenter,
   AlignRight, AlignJustify, Share2, Clipboard, Database, Calendar,
   Bold, Italic, Maximize, Move, CheckCircle as CheckIcon
 } from 'lucide-react';
@@ -322,6 +322,7 @@ const BilhetePreview = styled.div`
 const SIGNATORY_OPTIONS = [
   'Direção',
   'Coordenação de turno',
+  'Secretaria Escolar',
   'Coordenação Geral',
   'Coordenação da Integrada',
   'custom'
@@ -329,28 +330,89 @@ const SIGNATORY_OPTIONS = [
 
 const PRESET_TEMPLATES = [
   {
-    id: 'feriado',
-    name: 'Feriado/Ponte',
-    text: 'Prezados pais, informamos que no dia {data} não haverá aula devido ao feriado. Retornaremos normalmente na {dia_retorno}.',
-    icon: <Calendar size={16} />
+    id: 'parque',
+    name: 'Parque das Mangabeiras',
+    text: 'Autorização de atividades no Parque das Mangabeiras\n\nAutorizo o (a) aluno (a) ________________________________________ a participar das atividades que ocorrerem no Parque das Mangabeiras, com pessoas responsáveis pela Escola Municipal Senador Levindo Coelho, durante o ano de {ano}. Estou ciente que essas atividades poderão ocorrer semanalmente, sem outro tipo de aviso prévio, e fará parte do processo educativo.',
+    icon: <Maximize size={16} />,
+    overrides: { showAuthorizationText: false }
   },
   {
-    id: 'material',
-    name: 'Material Faltante',
-    text: 'Olá! Notamos que o aluno(a) está sem o material: {item}. Pedimos a gentileza de providenciar para as atividades em sala.',
-    icon: <Mail size={16} />
+    id: 'matriculas',
+    name: 'Sobre Matrículas',
+    text: 'INFORMAÇÕES SOBRE MATRÍCULA\n\nSenhores pais e ou responsáveis,\n\nInformações de final do ano:\n• {ano_atual}º ano: alunos sorteados para permanecer na escola e alunos retidos, devem renovar a matrícula imediatamente.\nAlunos sorteados para a E.E. Professor Pedro Aleixo deverão pegar a transferência após o dia {data_transferencia}.\n• A matricula nas escolas do Estado deverão ser realizadas no período de {periodo_estado}.',
+    icon: <Clipboard size={16} />
   },
   {
-    id: 'reuniao',
-    name: 'Convocação Reunião',
-    text: 'Convidamos os responsáveis para uma reunião pedagógica no dia {data} às {hora}. Sua presença é fundamental!',
-    icon: <User size={16} />
+    id: 'extra_classe',
+    name: 'Atividade Extra-classe',
+    text: 'AUTORIZAÇÃO PARA ATIVIDADE EXTRA-CLASSE\n\nSrs. Pais ou Responsáveis,\n\nNo dia {data}, {dia_semana}, os alunos da {turma} irão participar de uma atividade na {local}. Nesse dia os alunos deverão vir à escola no horário NORMAL, UNIFORMIZADOS. NÃO PRECISA TRAZER LANCHE. Deverão trazer o material do 1º horário, uma roupa para troca e uma toalha. Para maior organização da atividade e segurança dos alunos, somente os que trouxerem esta autorização assinada pelos pais/responsáveis poderão participar da atividade.\n\n• Data da excursão: {data}, {dia_semana};\n• Saída: {hora_saida}\n• Chegada: {hora_chegada}\n\nAutorizo o (a) aluno (a) ________________________________________ a participar da atividade.\n\n________________________________________________\nAssinatura Pai, Mãe ou Responsável.',
+    icon: <PlusCircle size={16} />,
+    overrides: { showAuthorizationText: false }
   },
   {
-    id: 'aula_passeio',
-    name: 'Aula-Passeio',
-    text: 'COMUNICADO – AULA PASSEIO\n\nPrezados responsáveis,\n\nInformamos que no dia {data}, {dia_semana}, as alunas e alunos do {turma} participarão de uma aula-passeio ao {local}. \n\nÉ FUNDAMENTAL QUE O ALUNO QUE RECEBER ESTE BILHETE TRAGA A AUTORIZAÇÃO E NÃO FALTE NO DIA, PARA QUE A VAGA DE TODOS SEJA GARANTIDA.\n\nA visita acontecerá no horário normal de aula, com chegada às {hora}. O transporte será feito por ônibus fretado pela escola. É necessário estar uniformizado e com sapato fechado. Os alunos serão acompanhados pelo Professor {professor}.\n\nPara que o aluno participe, o responsável precisa assinar a autorização abaixo:\n\nAutorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da aula passeio acima referida.\n\n________________________________________________\nAssinatura dos pais ou responsável',
-    icon: <Move size={16} />
+    id: 'assembleia',
+    name: 'Assembleia',
+    text: 'CONVOCAÇÃO\n\nSrs. Pais ou Responsáveis,\n\nNo dia {data}, {dia_semana}, teremos a ASSEMBLEIA ESCOLAR, às {hora}, na quadra da escola.\nNesse dia os alunos não terão aula. Voltaremos com as aulas na {dia_retorno}, {data_retorno}, nos horários normais.\n\nPauta:\n□ {pauta_1};\n□ {pauta_2}.\n\nAtenciosamente,\nDireção e Coordenação',
+    icon: <AlignJustify size={16} />
+  },
+  {
+    id: 'extra_classe_projeto',
+    name: 'Extra Classe (Projeto)',
+    text: 'AUTORIZAÇÃO PARA ATIVIDADE EXTRA-CLASSE\n\nSrs. Pais ou Responsáveis,\n\nNo dia {data}, {dia_semana}, os participantes do {projeto} irão participar de uma atividade no {local_detalhado}. Nesse dia os alunos deverão vir à escola no horário NORMAL, UNIFORMIZADOS. NÃO PRECISA TRAZER LANCHE. Para maior organização da atividade e segurança dos alunos, somente os que trouxerem esta autorização assinada pelos pais/responsáveis poderão participar da atividade.\n\n• Data da excursão: {data}, {dia_semana};\n• Saída: {hora_saida} horas\n• Chegada: {hora_chegada}\n\nAutorizo o (a) aluno (a) {aluno} a participar da atividade.',
+    icon: <Move size={16} />,
+    overrides: { showAuthorizationText: false }
+  },
+  {
+    id: 'paralisacao',
+    name: 'Comunicado Paralisação',
+    text: 'COMUNICADO\n\nSrs. Pais ou Responsáveis,\n\nComunicamos que no dia {data_paralisacao}, {dia_semana_paralisacao}, não haverá aula para as salas {salas_paralisacao} do turno da {turno_paralisacao}, por motivo de paralisação. Estas turmas voltarão às aulas no dia {data_retorno_paralisacao}, nos horários normais.\n\nAtenciosamente,',
+    icon: <Info size={16} />
+  },
+  {
+    id: 'faltas',
+    name: 'Quantidade de Faltas',
+    text: 'COMUNICADO\n\nSrs. Pais ou Responsáveis,\n\nComunicamos que o aluno {aluno} apresenta até o momento {quantidade_faltas} dias de faltas. Informamos que este número pode levar a uma retenção neste ano.\n\nPedimos que fiquem atentos a frequência escolar e que compareçam à escola para conversarmos.',
+    icon: <Clipboard size={16} />
+  },
+  {
+    id: 'cinema_shopping',
+    name: 'Cinema / Shopping',
+    text: 'AUTORIZAÇÃO PARA ATIVIDADE EXTRA-CLASSE\n\nSrs. Pais ou Responsáveis,\n\nNo dia {data}, {dia_semana}, os alunos das salas {salas_cinema_shopping}, irão participar de uma atividade no {local_cinema_shopping}. Nesse dia, os alunos deverão comparecer à escola no horário normal de aula, uniformizados. Para maior organização da atividade e segurança dos alunos, somente os que trouxerem esta autorização assinada pelos pais/responsáveis poderão participar da atividade.\n\nAutorizo o (a) aluno (a) {aluno} a participar da atividade.',
+    icon: <Maximize size={16} />,
+    overrides: { showAuthorizationText: false }
+  },
+  {
+    id: 'entrega_resultados',
+    name: 'Entrega de Resultados',
+    text: 'CONVOCAÇÃO DE PAIS – ENTREGA DE RESULTADOS DO {trimestre} TRIMESTRE {ano}\n\nSrs. Pais ou Responsáveis,\n\nNo dia {data_reuniao}, {dia_semana_reuniao}, realizaremos uma reunião para entrega de resultados dos alunos dos {anos_escolares}.\nRessaltamos que o acompanhamento dos pais na vida escolar dos filhos é fator primordial que favorece a aprendizagem e o desenvolvimento dos estudantes.\n\n• Data da reunião: {data_reuniao} {dia_semana_reuniao};\n• Horário: de {hora_reuniao} horas\n-------------------------------------------------------------------------------------------------------------------------------------\nEu, {responsavel} responsável pelo (a) aluno (a) {aluno}, da sala____ recebi a convocação para a reunião de entrega de resultados no dia {data_reuniao}.',
+    icon: <User size={16} />,
+    overrides: { showAuthorizationText: false }
+  },
+  {
+    id: 'declaracao',
+    name: 'Declaração de Comparecimento',
+    text: 'DECLARAÇÃO DE COMPARECIMENTO\n\nDeclaramos para os devidos fins que o(a) Sr(a). {responsavel}, responsável pelo(a) aluno(a) {aluno}, compareceu a esta instituição de ensino no dia {data}, no período de {hora_inicio} às {hora_fim}, para tratar de assuntos de interesse de seu(sua) filho(a).\n\n{cidade}, {data_completa}.\n\n________________________________________________\nSecretaria Escolar / Direção',
+    icon: <Clipboard size={16} />,
+    overrides: {
+      showWatermark: true,
+      watermarkSize: 300,
+      showAuthorizationText: false,
+      showSignatureLine: false,
+      showDate: false,
+      qtyPerPage: '1',
+      fullPageCentering: true,
+      variables: {
+        data: '',
+        hora_inicio: '',
+        hora_fim: ''
+      }
+    }
+  },
+  {
+    id: 'reposicao',
+    name: 'Reposição de Aula',
+    text: 'COMUNICADO\n\nSrs. Pais ou Responsáveis,\n\nComunicamos que no dia {data_1}, {dia_semana_1}, haverá aula de reposição de greve, para as salas {salas_1} do turno da {turno_1}, no horário {hora_inicio_1} às {hora_fim_1}.\n\nNo {dia_semana_2}, dia {data_2}, haverá aula de reposição de greve, para as salas {salas_2} do turno da {turno_2}, no horário {hora_inicio_2} às {hora_fim_2}.\n\nAtenciosamente,\nCoordenação e Direção',
+    icon: <Edit2 size={16} />
   }
 ];
 
@@ -366,7 +428,7 @@ const BilheteGeneratorPanel = () => {
     signatory: 'Direção',
     customSignatory: '',
     copyCount: 4,
-    quantity: '4', 
+    quantity: '4',
     schoolFontSize: 16,
     contentFontSize: 12,
     signatoryFontSize: 11,
@@ -387,15 +449,60 @@ const BilheteGeneratorPanel = () => {
     showAuthorizationText: false,
     showDate: true,
     showLogoHeader: true,
+    showWatermark: false,
+    watermarkSize: 300,
+    fullPageCentering: false,
     variables: {
-      data: format(new Date(), 'dd/MM'),
+      data: '',
+      data_completa: format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }),
+      cidade: 'Belo Horizonte',
+      responsavel: '',
+      aluno: '',
+      hora_inicio: '',
+      hora_fim: '',
       dia_retorno: '',
       item: '',
       hora: '',
       dia_semana: '',
       turma: '',
       local: '',
-      professor: ''
+      professor: '',
+      ano: format(new Date(), 'yyyy'),
+      ano_atual: '6',
+      data_transferencia: '26/12',
+      periodo_estado: '16 a 20 de janeiro',
+      hora_saida: '',
+      hora_chegada: '',
+      data_retorno: '',
+      pauta_1: 'Programa Escola Integrada',
+      pauta_2: 'Clime escolar',
+      data_1: '',
+      dia_semana_1: '',
+      salas_1: '',
+      turno_1: 'TARDE',
+      hora_inicio_1: '13:00',
+      hora_fim_1: '17:20',
+      data_2: '',
+      dia_semana_2: 'SÁBADO',
+      salas_2: '',
+      turno_2: 'TARDE',
+      hora_inicio_2: '10:00',
+      hora_fim_2: '14:20',
+      projeto: 'Projeto Ler o Mundo',
+      local_detalhado: 'Setor Braille da Biblioteca Pública Estadual Luiz de Bessa',
+      data_paralisacao: '11/11',
+      dia_semana_paralisacao: 'SEXTA-FEIRA',
+      salas_paralisacao: '01, 02, 04, 08, 10 e 12',
+      turno_paralisacao: 'MANHÃ',
+      data_retorno_paralisacao: '16/11/2016',
+      quantidade_faltas: '',
+      salas_cinema_shopping: '01 e 02',
+      local_cinema_shopping: 'Shopping Boulevard',
+      trimestre: '1º',
+      data_reuniao: '03/06/2017',
+      dia_semana_reuniao: 'SÁBADO',
+      anos_escolares: '6ºs anos e do 3º ciclo',
+      hora_reuniao: '08'
     }
   });
 
@@ -403,10 +510,10 @@ const BilheteGeneratorPanel = () => {
 
   const replaceVariables = (text) => {
     if (!text) return '';
-    
+
     // First, strip HTML tags if they exist (legacy content)
     let cleanedText = text.replace(/<[^>]*>/g, '');
-    
+
     // Resolve common HTML entities
     cleanedText = cleanedText
       .replace(/&nbsp;/g, ' ')
@@ -418,9 +525,24 @@ const BilheteGeneratorPanel = () => {
 
     let newText = cleanedText;
     Object.keys(formData.variables).forEach(key => {
-      const value = formData.variables[key];
+      let displayValue = formData.variables[key];
+
+      // Fallback for empty values
+      if (displayValue === undefined || displayValue === null || displayValue === '') {
+        if (key === 'aluno' || key === 'responsavel') {
+          displayValue = '________________________________________';
+        } else if (key === 'data' || key === 'hora' || key.startsWith('data_') || key.startsWith('hora_')) {
+          displayValue = '_____________'; // Matches user's literal request
+        } else {
+          displayValue = '____________________';
+        }
+      } else if (key === 'aluno' || key === 'responsavel') {
+        // Uppercase for names
+        displayValue = displayValue.toUpperCase();
+      }
+
       const regex = new RegExp(`{${key}}`, 'g');
-      newText = newText.replace(regex, (value !== undefined && value !== null && value !== '') ? value : `{${key}}`);
+      newText = newText.replace(regex, displayValue);
     });
     return newText;
   };
@@ -437,10 +559,18 @@ const BilheteGeneratorPanel = () => {
   };
 
   const loadTemplate = (template) => {
-    setFormData(prev => ({
-      ...prev,
-      content: template.text
-    }));
+    setFormData(prev => {
+      const { variables, ...otherOverrides } = template.overrides || {};
+      return {
+        ...prev,
+        content: template.text,
+        ...otherOverrides,
+        variables: {
+          ...prev.variables,
+          ...(variables || {})
+        }
+      };
+    });
     toast.success(`Modelo "${template.name}" carregado!`);
   };
 
@@ -470,7 +600,7 @@ const BilheteGeneratorPanel = () => {
         if (docSnap.exists()) {
           const savedData = docSnap.data();
           let content = savedData.content || '';
-          
+
           // Auto-cleanup HTML if detected in saved content (legacy transition)
           if (content.includes('<') && content.includes('>')) {
             content = content
@@ -481,8 +611,8 @@ const BilheteGeneratorPanel = () => {
               .trim();
           }
 
-          setFormData(prev => ({ 
-            ...prev, 
+          setFormData(prev => ({
+            ...prev,
             ...savedData,
             content,
             // Ensure variables exist even in old saved data
@@ -518,9 +648,9 @@ const BilheteGeneratorPanel = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value 
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value
     }));
   };
 
@@ -559,8 +689,8 @@ const BilheteGeneratorPanel = () => {
             <AccordionContent $isOpen={openSection === 'templates'}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
                 {PRESET_TEMPLATES.map(tmpl => (
-                  <SignatoryOption 
-                    key={tmpl.id} 
+                  <SignatoryOption
+                    key={tmpl.id}
                     onClick={() => loadTemplate(tmpl)}
                     $color={primaryColor}
                     style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
@@ -589,19 +719,19 @@ const BilheteGeneratorPanel = () => {
               </FormGroup>
               <FormGroup>
                 <label><Edit2 size={16} /> Conteúdo do Bilhete</label>
-                <TextArea 
-                  name="content" 
-                  value={formData.content || ''} 
-                  onChange={handleChange} 
-                  placeholder="Digite o comunicado..." 
-                  $primaryColor={primaryColor} 
+                <TextArea
+                  name="content"
+                  value={formData.content || ''}
+                  onChange={handleChange}
+                  placeholder="Digite o comunicado..."
+                  $primaryColor={primaryColor}
                 />
               </FormGroup>
 
               {(() => {
                 const variableMatches = formData.content?.match(/{([^{}]+)}/g) || [];
                 const uniqueVariables = [...new Set(variableMatches.map(m => m.replace(/[{}]/g, '')))];
-                
+
                 if (uniqueVariables.length === 0) return null;
 
                 return (
@@ -611,11 +741,11 @@ const BilheteGeneratorPanel = () => {
                       {uniqueVariables.map(variable => (
                         <FormGroup key={variable}>
                           <label style={{ textTransform: 'capitalize' }}>{variable.replace('_', ' ')}</label>
-                          <Input 
-                            name={variable} 
-                            value={formData.variables[variable] || ''} 
-                            onChange={handleVariableChange} 
-                            $primaryColor={primaryColor} 
+                          <Input
+                            name={variable}
+                            value={formData.variables[variable] || ''}
+                            onChange={handleVariableChange}
+                            $primaryColor={primaryColor}
                             placeholder={`Valor para {${variable}}`}
                           />
                         </FormGroup>
@@ -639,11 +769,11 @@ const BilheteGeneratorPanel = () => {
             <AccordionContent $isOpen={openSection === 'signatory'}>
               <OptionGrid>
                 {SIGNATORY_OPTIONS.map(s => (
-                  <SignatoryOption 
-                    key={s} 
-                    $active={formData.signatory === s} 
+                  <SignatoryOption
+                    key={s}
+                    $active={formData.signatory === s}
                     $color={primaryColor}
-                    onClick={() => setFormData(prev => ({...prev, signatory: s}))}
+                    onClick={() => setFormData(prev => ({ ...prev, signatory: s }))}
                   >
                     {getSignatoryLabel(s)}
                   </SignatoryOption>
@@ -653,12 +783,12 @@ const BilheteGeneratorPanel = () => {
               {formData.signatory === 'custom' && (
                 <FormGroup style={{ marginTop: '20px' }}>
                   <label>Cargo Personalizado</label>
-                  <Input 
-                    name="customSignatory" 
-                    value={formData.customSignatory || ''} 
-                    onChange={handleChange} 
-                    placeholder="Ex: Secretaria Escolar" 
-                    $primaryColor={primaryColor} 
+                  <Input
+                    name="customSignatory"
+                    value={formData.customSignatory || ''}
+                    onChange={handleChange}
+                    placeholder="Ex: Secretaria Escolar"
+                    $primaryColor={primaryColor}
                   />
                 </FormGroup>
               )}
@@ -712,13 +842,6 @@ const BilheteGeneratorPanel = () => {
                     <option value="Arial">Arial</option>
                   </Select>
                 </FormGroup>
-                <FormGroup>
-                  <label>Layout Impressão</label>
-                  <Select name="quantity" value={formData.quantity || '4'} onChange={handleChange} $primaryColor={primaryColor}>
-                    <option value="2">2 por pág. (Grande)</option>
-                    <option value="4">4 por pág. (Econômico)</option>
-                  </Select>
-                </FormGroup>
               </ControlGrid>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '15px', marginTop: '15px' }}>
@@ -740,26 +863,26 @@ const BilheteGeneratorPanel = () => {
                 <FormGroup>
                   <label>Tít. Alinh.</label>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <AlignButton $active={formData.titleAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, titleAlign: 'left'}))}><AlignLeft size={16} /></AlignButton>
-                    <AlignButton $active={formData.titleAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, titleAlign: 'center'}))}><AlignCenter size={16} /></AlignButton>
-                    <AlignButton $active={formData.titleAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, titleAlign: 'right'}))}><AlignRight size={16} /></AlignButton>
+                    <AlignButton $active={formData.titleAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, titleAlign: 'left' }))}><AlignLeft size={16} /></AlignButton>
+                    <AlignButton $active={formData.titleAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, titleAlign: 'center' }))}><AlignCenter size={16} /></AlignButton>
+                    <AlignButton $active={formData.titleAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, titleAlign: 'right' }))}><AlignRight size={16} /></AlignButton>
                   </div>
                 </FormGroup>
                 <FormGroup>
                   <label>Txt. Alinh.</label>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <AlignButton $active={formData.contentAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, contentAlign: 'left'}))}><AlignLeft size={16} /></AlignButton>
-                    <AlignButton $active={formData.contentAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, contentAlign: 'center'}))}><AlignCenter size={16} /></AlignButton>
-                    <AlignButton $active={formData.contentAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, contentAlign: 'right'}))}><AlignRight size={16} /></AlignButton>
-                    <AlignButton $active={formData.contentAlign === 'justify'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, contentAlign: 'justify'}))}><AlignJustify size={16} /></AlignButton>
+                    <AlignButton $active={formData.contentAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, contentAlign: 'left' }))}><AlignLeft size={16} /></AlignButton>
+                    <AlignButton $active={formData.contentAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, contentAlign: 'center' }))}><AlignCenter size={16} /></AlignButton>
+                    <AlignButton $active={formData.contentAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, contentAlign: 'right' }))}><AlignRight size={16} /></AlignButton>
+                    <AlignButton $active={formData.contentAlign === 'justify'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, contentAlign: 'justify' }))}><AlignJustify size={16} /></AlignButton>
                   </div>
                 </FormGroup>
                 <FormGroup>
                   <label>Ass. Alinh.</label>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <AlignButton $active={formData.signatureAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, signatureAlign: 'left'}))}><AlignLeft size={16} /></AlignButton>
-                    <AlignButton $active={formData.signatureAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, signatureAlign: 'center'}))}><AlignCenter size={16} /></AlignButton>
-                    <AlignButton $active={formData.signatureAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, signatureAlign: 'right'}))}><AlignRight size={16} /></AlignButton>
+                    <AlignButton $active={formData.signatureAlign === 'left'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, signatureAlign: 'left' }))}><AlignLeft size={16} /></AlignButton>
+                    <AlignButton $active={formData.signatureAlign === 'center'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, signatureAlign: 'center' }))}><AlignCenter size={16} /></AlignButton>
+                    <AlignButton $active={formData.signatureAlign === 'right'} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, signatureAlign: 'right' }))}><AlignRight size={16} /></AlignButton>
                   </div>
                 </FormGroup>
               </div>
@@ -768,27 +891,47 @@ const BilheteGeneratorPanel = () => {
                 <label style={{ fontSize: '11px', color: '#666', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', display: 'block' }}>Opções de Visibilidade</label>
                 <CheckboxGroup>
                   <CheckboxItem $active={formData.showLogoHeader} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showLogoHeader} onChange={() => setFormData(p => ({...p, showLogoHeader: !p.showLogoHeader}))} />
-                    {formData.showLogoHeader ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    <input type="checkbox" checked={formData.showLogoHeader} onChange={() => setFormData(p => ({ ...p, showLogoHeader: !p.showLogoHeader }))} />
+                    {formData.showLogoHeader ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Exibir Logo
                   </CheckboxItem>
                   <CheckboxItem $active={formData.showSignatureLine} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showSignatureLine} onChange={() => setFormData(p => ({...p, showSignatureLine: !p.showSignatureLine}))} />
-                    {formData.showSignatureLine ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    <input type="checkbox" checked={formData.showSignatureLine} onChange={() => setFormData(p => ({ ...p, showSignatureLine: !p.showSignatureLine }))} />
+                    {formData.showSignatureLine ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Linha Assinatura
                   </CheckboxItem>
                   <CheckboxItem $active={formData.showDate} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showDate} onChange={() => setFormData(p => ({...p, showDate: !p.showDate}))} />
-                    {formData.showDate ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    <input type="checkbox" checked={formData.showDate} onChange={() => setFormData(p => ({ ...p, showDate: !p.showDate }))} />
+                    {formData.showDate ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Exibir Data
                   </CheckboxItem>
                   <CheckboxItem $active={formData.showAuthorizationText} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showAuthorizationText} onChange={() => setFormData(p => ({...p, showAuthorizationText: !p.showAuthorizationText}))} />
-                    {formData.showAuthorizationText ? <CheckIcon size={14} /> : <PlusCircle size={14} />} 
+                    <input type="checkbox" checked={formData.showAuthorizationText} onChange={() => setFormData(p => ({ ...p, showAuthorizationText: !p.showAuthorizationText }))} />
+                    {formData.showAuthorizationText ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Autorização Básica
+                  </CheckboxItem>
+                  <CheckboxItem $active={formData.showWatermark} $color={primaryColor}>
+                    <input type="checkbox" checked={formData.showWatermark} onChange={() => setFormData(p => ({ ...p, showWatermark: !p.showWatermark }))} />
+                    {formData.showWatermark ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
+                    Marca d'água
                   </CheckboxItem>
                 </CheckboxGroup>
               </div>
+
+              {formData.showWatermark && (
+                <FormGroup style={{ marginTop: '20px' }}>
+                  <label>Tamanho da Marca d'água: {formData.watermarkSize}px</label>
+                  <input
+                    type="range"
+                    min="100"
+                    max="500"
+                    name="watermarkSize"
+                    value={formData.watermarkSize}
+                    onChange={handleChange}
+                    style={{ width: '100%', accentColor: primaryColor }}
+                  />
+                </FormGroup>
+              )}
             </AccordionContent>
           </AccordionItem>
         </Card>
@@ -798,25 +941,45 @@ const BilheteGeneratorPanel = () => {
             <Info size={16} />
             <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase' }}>Visualização Prévia</span>
             <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-              <AlignButton $active={formData.isBold} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, isBold: !prev.isBold}))}><Bold size={16} /></AlignButton>
-              <AlignButton $active={formData.isItalic} $color={primaryColor} onClick={() => setFormData(prev => ({...prev, isItalic: !prev.isItalic}))}><Italic size={16} /></AlignButton>
+              <AlignButton $active={formData.isBold} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, isBold: !prev.isBold }))}><Bold size={16} /></AlignButton>
+              <AlignButton $active={formData.isItalic} $color={primaryColor} onClick={() => setFormData(prev => ({ ...prev, isItalic: !prev.isItalic }))}><Italic size={16} /></AlignButton>
             </div>
           </div>
           <PreviewCard style={{ marginTop: 0 }}>
-            <BilhetePreview style={{ 
-              backgroundColor: formData.bgColor || '#ffffff', 
+            <BilhetePreview style={{
+              backgroundColor: formData.bgColor || '#ffffff',
               color: formData.textColor || '#000000',
               padding: `${formData.paddingY || 20}px ${formData.paddingX || 20}px`,
-              fontFamily: formData.fontFamily || 'Inter'
+              fontFamily: formData.fontFamily || 'Inter',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: (formData.qtyPerPage === '1' && formData.fullPageCentering) ? 'center' : 'flex-start',
+              minHeight: '400px'
             }}>
+              {formData.showWatermark && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: `${formData.watermarkSize}px`,
+                  opacity: 0.1,
+                  pointerEvents: 'none',
+                  zIndex: 0
+                }}>
+                  <img src={schoolLogo} alt="Watermark" style={{ width: '100%', height: 'auto' }} />
+                </div>
+              )}
               {formData.showLogoHeader && (
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: formData.titleAlign === 'center' ? 'center' : (formData.titleAlign === 'right' ? 'flex-end' : 'flex-start'),
-                  gap: '15px', 
-                  borderBottom: `1px solid ${formData.borderColor || '#eeeeee'}`, 
-                  paddingBottom: '10px', 
+                  gap: '15px',
+                  borderBottom: `1px solid ${formData.borderColor || '#eeeeee'}`,
+                  paddingBottom: '10px',
                   marginBottom: '15px',
                   textAlign: formData.titleAlign || 'left',
                   flexDirection: formData.titleAlign === 'right' ? 'row-reverse' : 'row'
@@ -828,14 +991,14 @@ const BilheteGeneratorPanel = () => {
                   </div>
                 </div>
               )}
-              
-              <div 
-                style={{ 
-                  minHeight: '80px', 
-                  fontSize: `${formData.contentFontSize || 12}px`, 
+
+              <div
+                style={{
+                  minHeight: '80px',
+                  fontSize: `${formData.contentFontSize || 12}px`,
                   textAlign: formData.contentAlign || 'justify',
                   textJustify: 'inter-word',
-                  lineHeight: formData.lineHeight || 1.5, 
+                  lineHeight: formData.lineHeight || 1.5,
                   marginBottom: '20px',
                   fontWeight: formData.isBold ? 'bold' : 'normal',
                   fontStyle: formData.isItalic ? 'italic' : 'normal',
@@ -851,13 +1014,13 @@ const BilheteGeneratorPanel = () => {
               </div>
 
               {formData.showAuthorizationText && (
-                <div style={{ 
-                  marginTop: '15px', 
+                <div style={{
+                  marginTop: '15px',
                   fontSize: `${formData.contentFontSize || 12}px`,
                   marginBottom: '15px'
                 }}>
                   <div style={{ marginBottom: '15px' }}>
-                    Autorizo o (a) aluno (a) ________________________________________, da turma ___________ a participar da atividade acima referida.
+                    Autorizo o (a) aluno (a) {(formData.variables.aluno || '____________________').toUpperCase()}, da turma {(formData.variables.turma || '___________').toUpperCase()} a participar da atividade acima referida.
                   </div>
                   <div style={{ marginTop: '20px', textAlign: 'center' }}>
                     <div style={{ width: '250px', borderTop: '1px solid black', margin: '0 auto 5px' }} />
@@ -867,9 +1030,9 @@ const BilheteGeneratorPanel = () => {
               )}
 
               {formData.showDate && (
-                <div style={{ 
-                  textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'), 
-                  fontSize: '11px', 
+                <div style={{
+                  textAlign: (formData.signatureAlign === 'justify' || formData.signatureAlign === 'right') ? 'right' : (formData.signatureAlign === 'center' ? 'center' : 'left'),
+                  fontSize: '11px',
                   marginBottom: '10px',
                   opacity: 0.8
                 }}>
@@ -877,10 +1040,10 @@ const BilheteGeneratorPanel = () => {
                 </div>
               )}
 
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: formData.signatureAlign === 'left' ? 'flex-start' : (formData.signatureAlign === 'right' ? 'flex-end' : 'center') 
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: formData.signatureAlign === 'left' ? 'flex-start' : (formData.signatureAlign === 'right' ? 'flex-end' : 'center')
               }}>
                 {formData.showSignatureLine && <div style={{ width: '150px', borderTop: `1px solid ${formData.textColor || '#000000'}`, marginBottom: '4px', opacity: 0.5 }} />}
                 <div style={{ fontWeight: 700, fontSize: `${formData.signatoryFontSize || 11}px`, textTransform: 'uppercase' }}>
@@ -894,7 +1057,7 @@ const BilheteGeneratorPanel = () => {
 
       {/* Optimized Print Container */}
       <div style={{ display: 'none' }}>
-        <BilhetePrint ref={componentRef} data={{...formData, content: replaceVariables(formData.content)}} />
+        <BilhetePrint ref={componentRef} data={{ ...formData, content: replaceVariables(formData.content) }} />
       </div>
     </PageContainer>
   );

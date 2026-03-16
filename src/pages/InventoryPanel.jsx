@@ -565,7 +565,23 @@ const InventoryPanel = () => {
   return (
     <div>
       <Header>
-        <Title>Inventário de Dispositivos</Title>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Title>Inventário de Dispositivos</Title>
+          <span style={{ 
+            background: primaryColor + '22', 
+            color: primaryColor, 
+            padding: '4px 12px', 
+            borderRadius: '20px', 
+            fontSize: '12px', 
+            fontWeight: 700,
+            border: `1px solid ${primaryColor}44`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            {filteredItems.length} {filteredItems.length === 1 ? 'dispositivo' : 'dispositivos'}
+          </span>
+        </div>
         <ActionGroup>
           <Button onClick={() => {
             if (filteredItems.length > 0) {

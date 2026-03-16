@@ -6,33 +6,27 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-
     function isAdmin() {
       return isAuthenticated() && 
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        getUserData().role == 'admin';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // Rules for User Metadata
+    // Allow any authenticated user to read all user docs (needed for profile mapping)
     match /users/{userId} {
       allow read: if isAuthenticated();
-      // Allow users to create their own basic record on first login
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      // Only admins can update other users or change roles
-      allow update, delete: if isAdmin();
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
     // Rules for Settings
+    // Allow read without auth to avoid errors on app load (splash/login)
     match /settings/{settingId} {
-      allow read: if isAuthenticated();
-      // Allow authenticated users to update global settings (institutional data) for now
+      allow read: if true;
       allow write: if isAuthenticated();
     }
 
-    // Rules for Generated Documents (terms, inventory, etc)
+    // Rules for Generated Documents
     match /generated_terms/{docId} {
       allow read, write: if isAuthenticated();
     }
@@ -41,9 +35,15 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
     }
 
-    // Default deny
+    // Specific match for nested paths just in case
+    match /{allPaths=**}/generated_terms/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Default deny for anything else
     match /{path=**} {
-      allow read, write: if false;
+      allow read: if false;
+      allow write: if false;
     }
   }
 }

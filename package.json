@@ -23,6 +23,7 @@
     "react-router-dom": "^7.13.1",
     "react-to-print": "^3.3.0",
     "styled-components": "^6.3.11",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {

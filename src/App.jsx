@@ -5,6 +5,8 @@ import GeradorPanel from './pages/GeradorPanel';
 import InventoryPanel from './pages/InventoryPanel';
 import LabelGeneratorPanel from './pages/LabelGeneratorPanel';
 import BilheteGeneratorPanel from './pages/BilheteGeneratorPanel';
+import DiarioBordoPanel from './pages/DiarioBordoPanel';
+import MapaSalaPanel from './pages/MapaSalaPanel';
 import Login from './pages/Login';
 import DashboardLayout from './components/DashboardLayout';
 import SplashScreen from './components/SplashScreen';
@@ -86,6 +88,22 @@ function AppContent() {
           <AuthGuard>
             <DashboardLayout>
               <BilheteGeneratorPanel />
+            </DashboardLayout>
+          </AuthGuard>
+        } />
+
+        <Route path="/diario-de-bordo" element={
+          <AuthGuard>
+            <DashboardLayout>
+              <DiarioBordoPanel />
+            </DashboardLayout>
+          </AuthGuard>
+        } />
+
+        <Route path="/mapa-sala" element={
+          <AuthGuard>
+            <DashboardLayout>
+              <MapaSalaPanel />
             </DashboardLayout>
           </AuthGuard>
         } />

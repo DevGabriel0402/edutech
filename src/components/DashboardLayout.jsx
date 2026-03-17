@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FileText, Box, Tag, Layout, LogOut, Settings as SettingsIcon, User, Mail } from 'lucide-react';
+import { FileText, Box, Tag, Layout, LogOut, Settings as SettingsIcon, Bell, Search, Menu, X, User, Edit3, Shield, Star, Crown, Mail, BookOpen, Map
+} from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -66,8 +67,14 @@ const Tabbar = styled.nav`
   height: 70px;
   z-index: 1000;
   padding: 0 8px;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @media (max-width: 768px) {
     display: flex;
@@ -167,6 +174,10 @@ const NavItem = styled(NavLink)`
       width: 20px;
       height: 20px;
     }
+
+    /* Prevent text wrapping to keep items in a row */
+    white-space: nowrap;
+    min-width: 80px;
   }
 `;
 
@@ -275,6 +286,14 @@ const DashboardLayout = ({ children }) => {
             <Mail size={20} />
             Bilhetes
           </NavItem>
+          <NavItem to="/diario-de-bordo" $color={primaryColor} onClick={() => setMobileMenuOpen(false)}>
+            <BookOpen size={20} />
+            Diário de Bordo
+          </NavItem>
+          <NavItem to="/mapa-sala" $color={primaryColor} onClick={() => setMobileMenuOpen(false)}>
+            <Map size={20} />
+            Mapa de Sala
+          </NavItem>
         </NavList>
 
         <div style={{ padding: '20px', borderTop: '1px solid #1a1a1a' }}>
@@ -351,6 +370,14 @@ const DashboardLayout = ({ children }) => {
         <NavItem to="/bilhetes" $color={primaryColor}>
           <Mail size={22} />
           Bilhetes
+        </NavItem>
+        <NavItem to="/diario-de-bordo" $color={primaryColor}>
+          <BookOpen size={22} />
+          Diário
+        </NavItem>
+        <NavItem to="/mapa-sala" $color={primaryColor}>
+          <Map size={22} />
+          Mapa
         </NavItem>
       </Tabbar>
     </LayoutContainer>

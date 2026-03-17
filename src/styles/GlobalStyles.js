@@ -26,6 +26,7 @@ const GlobalStyle = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scroll on body */
   }
 
   h1, h2, h3, h4, h5, h6 {

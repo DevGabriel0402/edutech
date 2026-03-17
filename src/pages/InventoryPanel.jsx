@@ -69,7 +69,7 @@ const Title = styled.h1`
 
 const Button = styled.button`
   background: ${props => props.$primary ? (props.$color || 'white') : 'transparent'};
-  color: ${props => props.$primary ? (props.$color ? 'white' : 'black') : 'white'};
+  color: ${props => props.$primary ? 'white' : 'white'};
   border: ${props => props.$primary ? 'none' : '1px solid #333'};
   padding: 10px 20px;
   border-radius: 8px;
@@ -402,6 +402,12 @@ const ModalContent = styled(Card)`
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    width: 100%;
+  }
 `;
 
 const FormGrid = styled.div`
@@ -410,8 +416,9 @@ const FormGrid = styled.div`
   gap: 20px;
   margin-top: 20px;
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 `;
 
@@ -436,7 +443,7 @@ const FormGroup = styled.div`
 
     &:focus {
       outline: none;
-      border-color: #444;
+      border-color: ${props => props.$primaryColor || '#444'};
     }
   }
 `;
@@ -567,12 +574,12 @@ const InventoryPanel = () => {
       <Header>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Title>Inventário de Dispositivos</Title>
-          <span style={{ 
-            background: primaryColor + '22', 
-            color: primaryColor, 
-            padding: '4px 12px', 
-            borderRadius: '20px', 
-            fontSize: '12px', 
+          <span style={{
+            background: primaryColor + '22',
+            color: primaryColor,
+            padding: '4px 12px',
+            borderRadius: '20px',
+            fontSize: '12px',
             fontWeight: 700,
             border: `1px solid ${primaryColor}44`,
             display: 'flex',
@@ -592,7 +599,16 @@ const InventoryPanel = () => {
           }}>
             <Download size={18} /> Exportar
           </Button>
-          <Button $primary $color={primaryColor} onClick={() => setShowModal(true)}>
+          <Button $primary $color={primaryColor} onClick={() => {
+            setEditingItem(null);
+            setFormData({
+              tipo: 'Notebook', marca: '', modelo: '',
+              serial: '', patrimonio: '', status: 'Disponível',
+              localizacao: '', observacoes: '',
+              _tipoOpen: false, _statusOpen: false
+            });
+            setShowModal(true);
+          }}>
             <Plus size={18} /> Novo Item
           </Button>
         </ActionGroup>
@@ -775,8 +791,8 @@ const InventoryPanel = () => {
 
         {totalPages > 1 && (
           <PaginationContainer>
-            <PageButton 
-              $color={primaryColor} 
+            <PageButton
+              $color={primaryColor}
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
             >
@@ -787,12 +803,12 @@ const InventoryPanel = () => {
               const pageNum = i + 1;
               // Show max 5 page buttons to avoid clutter
               if (
-                pageNum === 1 || 
-                pageNum === totalPages || 
+                pageNum === 1 ||
+                pageNum === totalPages ||
                 (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
               ) {
                 return (
-                  <PageButton 
+                  <PageButton
                     key={pageNum}
                     $active={currentPage === pageNum}
                     $color={primaryColor}
@@ -810,8 +826,8 @@ const InventoryPanel = () => {
               return null;
             })}
 
-            <PageButton 
-              $color={primaryColor} 
+            <PageButton
+              $color={primaryColor}
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(prev => prev + 1)}
             >
@@ -825,7 +841,7 @@ const InventoryPanel = () => {
         <ModalOverlay>
           <ModalContent>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ color: 'white', fontFamily: 'Outfit' }}>
+              <h2 style={{ color: 'white', fontFamily: 'Outfit', borderLeft: `4px solid ${primaryColor}`, paddingLeft: '12px' }}>
                 {editingItem ? 'Editar Item' : 'Novo Item de Inventário'}
               </h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', color: '#555', cursor: 'pointer' }}>
@@ -1003,10 +1019,22 @@ const InventoryPanel = () => {
                 </FormGroup>
               </FormGrid>
 
-              <div style={{ marginTop: '30px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <Button type="button" onClick={() => setShowModal(false)}>Cancelar</Button>
-                <Button type="submit" $primary $color={primaryColor} disabled={saving}>
-                  {saving ? 'Salvando...' : editingItem ? 'Salvar Alterações' : 'Cadastrar Item'}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '30px' }}>
+                <Button
+                  type="submit"
+                  $primary
+                  $color={primaryColor}
+                  $fullWidth
+                  disabled={saving}
+                >
+                  {saving ? 'Processando...' : (editingItem ? 'Salvar Alterações' : 'Adicionar Item')}
+                </Button>
+                <Button
+                  type="button"
+                  $fullWidth
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancelar
                 </Button>
               </div>
             </form>

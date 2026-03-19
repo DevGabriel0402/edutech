@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { FileText, Box, Tag, Layout, LogOut, Settings as SettingsIcon, Bell, Search, Menu, X, User, Edit3, Shield, Star, Crown, Mail, BookOpen, Map
@@ -114,7 +114,9 @@ const Logo = styled.div`
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 12px ${props => (props.$color || '#ff4d4d') + '44'};\n\n  @media (max-width: 768px) {
+  box-shadow: 0 4px 12px ${props => (props.$color || '#ff4d4d') + '44'};
+
+  @media (max-width: 768px) {
     width: 28px;
     height: 28px;
   }
@@ -263,7 +265,7 @@ const DashboardLayout = ({ children }) => {
   const { userData, logout } = useAuth();
   const primaryColor = settings.primaryColor;
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {

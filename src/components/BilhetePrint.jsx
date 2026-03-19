@@ -23,8 +23,10 @@ const PrintContainer = styled.div`
 `;
 
 const NoticeGrid = styled.div`
-  display: block;
+  display: grid;
+  grid-template-columns: ${props => (props.$qty >= 2) ? '1fr 1fr' : '1fr'};
   width: 210mm;
+  background: white;
 `;
 
 const NoticeWrapper = styled.div`
@@ -38,9 +40,15 @@ const NoticeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px dashed ${props => props.$borderColor || '#eeeeee'};
+  border-right: ${props => (props.$qty >= 2 && props.$isLeft) ? `1px dashed ${props.$borderColor || '#eeeeee'}` : 'none'};
   font-family: ${props => props.$fontFamily || 'Inter'}, sans-serif;
-  min-height: 148.5mm;
-  overflow: visible;
+  min-height: ${props => {
+    if (props.$qty === 1) return '280mm';
+    if (props.$qty === 2) return '140mm';
+    return 'auto'; // Permitir que bilhetes pequenos se agrupem
+  }};
+  max-height: ${props => (props.$qty >= 4) ? '145mm' : 'none'};
+  overflow: hidden;
   
   &:last-child {
     border-bottom: none;
@@ -194,6 +202,7 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
                 $paddingX={paddingX}
                 $paddingY={paddingY}
                 $fontFamily={fontFamily}
+                $qty={qtyPerPage}
                 $isLeft={isLeft}
                 style={{
                   display: 'flex',

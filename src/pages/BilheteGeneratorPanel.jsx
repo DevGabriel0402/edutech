@@ -830,8 +830,14 @@ const BilheteGeneratorPanel = () => {
                   <Input type="number" name="paddingX" value={formData.paddingX || ''} onChange={handleChange} $primaryColor={primaryColor} />
                 </FormGroup>
                 <FormGroup>
-                  <label>Margem Vertical</label>
-                  <Input type="number" name="paddingY" value={formData.paddingY || ''} onChange={handleChange} $primaryColor={primaryColor} />
+                  <label>Bilhetes por Folha</label>
+                  <Select name="quantity" value={formData.quantity || '4'} onChange={handleChange} $primaryColor={primaryColor}>
+                    <option value="1">1 por página</option>
+                    <option value="2">2 por página</option>
+                    <option value="4">4 por página (2x2)</option>
+                    <option value="6">6 por página (2x3)</option>
+                    <option value="8">8 por página (2x4)</option>
+                  </Select>
                 </FormGroup>
                 <FormGroup>
                   <label>Tipo de Fonte</label>

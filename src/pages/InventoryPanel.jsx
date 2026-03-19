@@ -463,6 +463,8 @@ const InventoryPanel = () => {
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [duplicateInfo, setDuplicateInfo] = useState({ patrimonio: '', aparelho: '' });
   const ITEMS_PER_PAGE = 10;
   const printRef = useRef(null);
 
@@ -512,6 +514,23 @@ const InventoryPanel = () => {
     e.preventDefault();
     try {
       setSaving(true);
+      
+      // Check for duplicates
+      const duplicate = items.find(item => 
+        item.patrimonio.trim().toLowerCase() === formData.patrimonio.trim().toLowerCase() && 
+        (!editingItem || item.id !== editingItem.id)
+      );
+
+      if (duplicate) {
+        setDuplicateInfo({
+          patrimonio: duplicate.patrimonio,
+          aparelho: duplicate.tipo
+        });
+        setShowErrorModal(true);
+        setSaving(false);
+        return;
+      }
+
       if (editingItem) {
         await updateDoc(doc(db, 'inventory', editingItem.id), formData);
       } else {
@@ -1043,6 +1062,43 @@ const InventoryPanel = () => {
       )}
 
       <InventoryPrint ref={printRef} items={filteredItems} />
+
+      {showErrorModal && (
+        <ModalOverlay style={{ zIndex: 1100 }}>
+          <ModalContent style={{ maxWidth: '400px', textAlign: 'center', padding: '40px 30px' }}>
+            <div style={{ 
+              width: '80px', 
+              height: '80px', 
+              background: 'rgba(239, 68, 68, 0.1)', 
+              borderRadius: '50%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              margin: '0 auto 24px',
+              border: '1px solid rgba(239, 68, 68, 0.2)'
+            }}>
+              <AlertCircle size={40} color="#ef4444" />
+            </div>
+            
+            <h2 style={{ color: 'white', fontFamily: 'Outfit', fontSize: '22px', marginBottom: '12px' }}>
+              Patrimônio Existente
+            </h2>
+            
+            <p style={{ color: '#888', fontSize: '15px', lineHeight: '1.6', marginBottom: '30px' }}>
+              O patrimônio <strong style={{ color: 'white' }}>{duplicateInfo.patrimonio}</strong> já está cadastrado para o aparelho <strong style={{ color: primaryColor }}>{duplicateInfo.aparelho}</strong>.
+            </p>
+            
+            <Button 
+              $primary 
+              $color={primaryColor} 
+              style={{ width: '100%' }}
+              onClick={() => setShowErrorModal(false)}
+            >
+              Entendido
+            </Button>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </div>
   );
 };

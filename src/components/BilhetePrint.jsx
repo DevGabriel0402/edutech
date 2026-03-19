@@ -147,6 +147,8 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
 
   const { 
     schoolName = 'Escola',
+    schoolLogo = '',
+    subtitle = 'Comunicado Escolar',
     content = '',
     signatory = 'Direção',
     customSignatory = '',

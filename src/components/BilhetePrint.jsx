@@ -29,7 +29,7 @@ const NoticeGrid = styled.div`
 
 const NoticeWrapper = styled.div`
   width: 100%;
-  padding: ${props => (props.$paddingY || 10) + 'mm ' + (props.$paddingX || 20) + 'mm'};
+  padding: ${props => (props.$paddingY ?? 2) + 'px ' + (props.$paddingX || 20) + 'px'};
   box-sizing: border-box;
   page-break-inside: avoid;
   position: relative;
@@ -73,8 +73,8 @@ const Header = styled.div`
   align-items: center;
   gap: 15px;
   border-bottom: 2px solid ${props => props.$borderColor || '#eeeeee'};
-  padding-bottom: 8px;
-  margin-bottom: 15px;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
 `;
 
 const Logo = styled.img`

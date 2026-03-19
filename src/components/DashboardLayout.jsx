@@ -27,9 +27,22 @@ const Sidebar = styled.aside`
   bottom: 0;
   left: 0;
   z-index: 1000;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 #0d0d0d;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
 
   @media (max-width: 768px) {
-    display: none;
+    display: ${props => props.$isOpen ? 'flex' : 'none'};
+    right: 0;
+    width: 100%;
   }
 `;
 
@@ -250,6 +263,7 @@ const DashboardLayout = ({ children }) => {
   const { userData, logout } = useAuth();
   const primaryColor = settings.primaryColor;
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const handleLogout = async () => {
     try {
@@ -263,7 +277,7 @@ const DashboardLayout = ({ children }) => {
   return (
     <LayoutContainer>
       {/* Desktop Sidebar */}
-      <Sidebar>
+      <Sidebar $isOpen={mobileMenuOpen}>
         <BrandArea>
           <Logo $color={primaryColor}><Layout size={18} /></Logo>
           <BrandName>{settings.systemName}</BrandName>

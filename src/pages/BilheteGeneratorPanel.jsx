@@ -895,28 +895,28 @@ const BilheteGeneratorPanel = () => {
               <div style={{ marginTop: '20px' }}>
                 <label style={{ fontSize: '11px', color: '#666', fontWeight: 800, textTransform: 'uppercase', marginBottom: '10px', display: 'block' }}>Opções de Visibilidade</label>
                 <CheckboxGroup>
-                  <CheckboxItem $active={formData.showLogoHeader} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showLogoHeader} onChange={() => setFormData(p => ({ ...p, showLogoHeader: !p.showLogoHeader }))} />
+                  <CheckboxItem $active={formData.showLogoHeader} $color={primaryColor} onClick={() => setFormData(p => ({ ...p, showLogoHeader: !p.showLogoHeader }))}>
+                    <input type="checkbox" checked={formData.showLogoHeader} readOnly />
                     {formData.showLogoHeader ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Exibir Logo
                   </CheckboxItem>
-                  <CheckboxItem $active={formData.showSignatureLine} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showSignatureLine} onChange={() => setFormData(p => ({ ...p, showSignatureLine: !p.showSignatureLine }))} />
+                  <CheckboxItem $active={formData.showSignatureLine} $color={primaryColor} onClick={() => setFormData(p => ({ ...p, showSignatureLine: !p.showSignatureLine }))}>
+                    <input type="checkbox" checked={formData.showSignatureLine} readOnly />
                     {formData.showSignatureLine ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Linha Assinatura
                   </CheckboxItem>
-                  <CheckboxItem $active={formData.showDate} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showDate} onChange={() => setFormData(p => ({ ...p, showDate: !p.showDate }))} />
+                  <CheckboxItem $active={formData.showDate} $color={primaryColor} onClick={() => setFormData(p => ({ ...p, showDate: !p.showDate }))}>
+                    <input type="checkbox" checked={formData.showDate} readOnly />
                     {formData.showDate ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Exibir Data
                   </CheckboxItem>
-                  <CheckboxItem $active={formData.showAuthorizationText} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showAuthorizationText} onChange={() => setFormData(p => ({ ...p, showAuthorizationText: !p.showAuthorizationText }))} />
+                  <CheckboxItem $active={formData.showAuthorizationText} $color={primaryColor} onClick={() => setFormData(p => ({ ...p, showAuthorizationText: !p.showAuthorizationText }))}>
+                    <input type="checkbox" checked={formData.showAuthorizationText} readOnly />
                     {formData.showAuthorizationText ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Autorização Básica
                   </CheckboxItem>
-                  <CheckboxItem $active={formData.showWatermark} $color={primaryColor}>
-                    <input type="checkbox" checked={formData.showWatermark} onChange={() => setFormData(p => ({ ...p, showWatermark: !p.showWatermark }))} />
+                  <CheckboxItem $active={formData.showWatermark} $color={primaryColor} onClick={() => setFormData(p => ({ ...p, showWatermark: !p.showWatermark }))}>
+                    <input type="checkbox" checked={formData.showWatermark} readOnly />
                     {formData.showWatermark ? <CheckIcon size={14} /> : <PlusCircle size={14} />}
                     Marca d'água
                   </CheckboxItem>
@@ -1062,7 +1062,12 @@ const BilheteGeneratorPanel = () => {
 
       {/* Optimized Print Container */}
       <div style={{ display: 'none' }}>
-        <BilhetePrint ref={componentRef} data={{ ...formData, content: replaceVariables(formData.content) }} />
+        <BilhetePrint ref={componentRef} data={{ 
+          ...formData, 
+          schoolLogo: settings.logo,
+          subtitle: formData.subtitle || 'Comunicado Escolar',
+          content: replaceVariables(formData.content) 
+        }} />
       </div>
     </PageContainer>
   );

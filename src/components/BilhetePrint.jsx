@@ -36,12 +36,16 @@ const NoticeWrapper = styled.div`
   position: relative;
   background-color: ${props => props.$bgColor || '#ffffff'};
   color: ${props => props.$textColor || '#000000'};
-  display: flex;
-  flex-direction: column;
   padding: ${props => props.$paddingY || 10}px ${props => props.$paddingX || 20}px;
   border-bottom: 1px dashed ${props => props.$borderColor || '#eeeeee'};
   font-family: ${props => props.$fontFamily || 'Inter'}, sans-serif;
-  min-height: auto;
+  min-height: ${props => {
+    if (props.$qty === 1) return '280mm';
+    if (props.$qty === 2) return '140mm';
+    if (props.$qty === 3) return '93mm';
+    if (props.$qty === 4) return '70mm';
+    return 'auto';
+  }};
   overflow: visible;
   
   &:last-child {
@@ -177,109 +181,107 @@ const BilhetePrint = forwardRef(({ data }, ref) => {
   const finalSignatory = signatory === 'custom' ? customSignatory : signatory;
   const currentDate = format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   
-  const notices = Array.from({ length: Number(copyCount) || 4 });
+  const notices = Array.from({ length: Number(copyCount) || 1 });
   const qtyPerPage = Number(quantity);
+
+  // Agrupar em pedaços de acordo com qtyPerPage
+  const chunks = [];
+  for (let i = 0; i < notices.length; i += qtyPerPage) {
+    chunks.push(notices.slice(i, i + qtyPerPage));
+  }
 
   return (
     <PrintContainer ref={ref}>
-        <NoticeGrid $qty={qtyPerPage}>
-          {notices.map((_, index) => {
-            const isLeft = index % 2 === 0;
-            return (
-              <NoticeWrapper 
-                key={index} 
-                $bgColor={bgColor} 
-                $textColor={textColor} 
-                $borderColor={borderColor}
-                $paddingX={paddingX}
-                $paddingY={paddingY}
-                $fontFamily={fontFamily}
-                $qty={qtyPerPage}
-                $isLeft={isLeft}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: (qtyPerPage === '1' && fullPageCentering) ? 'center' : 'flex-start',
-                  minHeight: qtyPerPage === 4 ? '128mm' : (qtyPerPage === 2 ? '260mm' : '260mm')
-                }}
-              >
-                {showWatermark && (
-                  <Watermark $size={watermarkSize}>
-                    <img src={schoolLogo} alt="Watermark" />
-                  </Watermark>
-                )}
-                {showLogoHeader && (
-                  <Header 
-                    $borderColor={borderColor}
-                    style={{ 
-                      textAlign: titleAlign,
-                      justifyContent: titleAlign === 'center' ? 'center' : (titleAlign === 'right' ? 'flex-end' : 'flex-start'),
-                      flexDirection: titleAlign === 'right' ? 'row-reverse' : 'row'
-                    }}
-                  >
-                    <Logo src={schoolLogo} alt="Logo" $size={logoSize} />
+      {chunks.map((chunk, chunkIndex) => (
+        <div key={chunkIndex} style={{ pageBreakAfter: chunkIndex < chunks.length - 1 ? 'always' : 'auto' }}>
+          <NoticeGrid $qty={qtyPerPage}>
+            {chunk.map((_, indexInChunk) => {
+              const globalIndex = (chunkIndex * qtyPerPage) + indexInChunk;
+              return (
+                <NoticeWrapper
+                  key={globalIndex}
+                  $bgColor={bgColor}
+                  $textColor={textColor}
+                  $borderColor={borderColor}
+                  $paddingX={paddingX}
+                  $paddingY={paddingY}
+                  $fontFamily={fontFamily}
+                  $qty={qtyPerPage}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: (qtyPerPage === 1 && fullPageCentering) ? 'center' : 'flex-start',
+                    pageBreakInside: 'avoid'
+                  }}
+                >
+                  {showWatermark && (
+                    <Watermark $size={watermarkSize || 300}>
+                      {schoolLogo && <img src={schoolLogo} alt="Marca d'água" />}
+                    </Watermark>
+                  )}
+
+                  <Header $borderColor={borderColor}>
+                    {showLogoHeader && schoolLogo && (
+                      <Logo src={schoolLogo} alt="Logo da Escola" $size={logoSize || 50} />
+                    )}
                     <HeaderContent>
-                      <SchoolName style={{ fontSize: `${schoolFontSize}pt` }}>{schoolName}</SchoolName>
-                      <NoticeType style={{ color: textColor }}>Comunicado Escolar</NoticeType>
+                      <SchoolName style={{ 
+                        fontSize: `${schoolFontSize || 18}pt`,
+                        textAlign: titleAlign || 'center'
+                      }}>
+                        {schoolName || 'NOME DA ESCOLA'}
+                      </SchoolName>
+                      <NoticeType style={{ textAlign: titleAlign || 'center' }}>
+                        {subtitle || 'Comunicado Escolar'}
+                      </NoticeType>
                     </HeaderContent>
                   </Header>
-                )}
 
-                <Content 
-                  $qty={qtyPerPage}
-                  style={{ 
-                    fontSize: `${contentFontSize}pt`, 
-                    textAlign: contentAlign,
-                    lineHeight: lineHeight,
-                    fontWeight: isBold ? 'bold' : 'normal',
-                    fontStyle: isItalic ? 'italic' : 'normal'
-                  }}
-                >
-                  {content}
-                </Content>
+                  <Content
+                    $fontSize={contentFontSize || 14}
+                    $lineHeight={lineHeight || 1.6}
+                    $textColor={textColor}
+                    style={{ textAlign: contentAlign || 'left' }}
+                    dangerouslySetInnerHTML={{ __html: content }}
+                  />
 
-                {showAuthorizationText && (
-                  <div style={{ 
-                    marginTop: '5mm', 
-                    fontSize: `${contentFontSize}pt`,
-                    marginBottom: '5mm'
-                  }}>
-                    <div style={{ marginBottom: '5mm' }}>
-                      Autorizo o (a) aluno (a) {(data.variables?.aluno || '________________________________________').toUpperCase()}, da turma {(data.variables?.turma || '____________________').toUpperCase()} a participar da atividade acima referida.
-                    </div>
-                    <div style={{ marginTop: '10mm', textAlign: 'center' }}>
-                      <div style={{ width: '80mm', borderTop: '0.2mm solid black', margin: '0 auto 1.5mm' }} />
-                      <div style={{ fontSize: `${contentFontSize * 0.9}pt` }}>Assinatura dos pais ou responsável</div>
-                    </div>
-                  </div>
-                )}
-
-                {showDate && (
-                  <DateText 
-                    $qty={qtyPerPage}
-                    style={{ 
-                      textAlign: signatureAlign === 'justify' ? 'right' : signatureAlign,
+                  {showAuthorizationText && (
+                    <div style={{ 
+                      fontSize: '11pt', 
+                      margin: '10px 0', 
+                      fontStyle: 'italic',
+                      color: textColor || '#000000',
                       opacity: 0.8
-                    }}
-                  >
-                    {city}, {currentDate}.
-                  </DateText>
-                )}
+                    }}>
+                      Autorizo a participação do meu filho(a) nas atividades descritas acima.
+                    </div>
+                  )}
 
-                <Footer 
-                  $qty={qtyPerPage}
-                  style={{ 
-                    alignItems: signatureAlign === 'left' ? 'flex-start' : (signatureAlign === 'right' ? 'flex-end' : 'center')
-                  }}
-                >
-                  {showSignatureLine && <SignatureLine $qty={qtyPerPage} $textColor={textColor} />}
-                  <SignatoryName style={{ fontSize: `${signatoryFontSize}pt` }}>{finalSignatory}</SignatoryName>
-                </Footer>
-              </NoticeWrapper>
-            );
-          })}
-        </NoticeGrid>
-      </PrintContainer>
+                  <Footer>
+                    {showDate && (
+                      <DateText style={{ textAlign: signatureAlign || 'center' }}>
+                        {city || 'Cidade'}, {currentDate}
+                      </DateText>
+                    )}
+
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: signatureAlign === 'left' ? 'flex-start' : (signatureAlign === 'right' ? 'flex-end' : 'center')
+                    }}>
+                      {showSignatureLine && <SignatureLine $textColor={textColor} style={{ width: '200px' }} />}
+                      <SignatoryName style={{ fontSize: `${signatoryFontSize || 11}pt` }}>
+                        {signatory === 'custom' ? (customSignatory || 'Assinatura') : (signatory || 'Direção')}
+                      </SignatoryName>
+                    </div>
+                  </Footer>
+                </NoticeWrapper>
+              );
+            })}
+          </NoticeGrid>
+        </div>
+      ))}
+    </PrintContainer>
   );
 });
 

@@ -38,11 +38,11 @@ const NoticeWrapper = styled.div`
   color: ${props => props.$textColor || '#000000'};
   display: flex;
   flex-direction: column;
+  padding: ${props => props.$paddingY || 10}px ${props => props.$paddingX || 20}px;
   border-bottom: 1px dashed ${props => props.$borderColor || '#eeeeee'};
   font-family: ${props => props.$fontFamily || 'Inter'}, sans-serif;
   min-height: auto;
-  max-height: ${props => (props.$qty >= 4) ? '145mm' : 'none'};
-  overflow: hidden;
+  overflow: visible;
   
   &:last-child {
     border-bottom: none;
@@ -104,7 +104,6 @@ const NoticeType = styled.p`
 `;
 
 const Content = styled.div`
-  flex: 1;
   margin-bottom: 10px;
   overflow-wrap: break-word !important;
   word-break: normal !important;
@@ -118,7 +117,6 @@ const Content = styled.div`
 const Footer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: auto;
 `;
 
 const DateText = styled.div`

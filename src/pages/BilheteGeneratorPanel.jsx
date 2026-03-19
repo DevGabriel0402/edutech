@@ -262,7 +262,7 @@ const CheckboxGroup = styled.div`
   margin-top: 10px;
 `;
 
-const CheckboxItem = styled.label`
+const CheckboxItem = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -429,6 +429,7 @@ const BilheteGeneratorPanel = () => {
     customSignatory: '',
     copyCount: 4,
     quantity: '4',
+    subtitle: 'Comunicado Escolar',
     schoolFontSize: 16,
     contentFontSize: 12,
     signatoryFontSize: 11,
@@ -839,6 +840,16 @@ const BilheteGeneratorPanel = () => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
+                  <label>Subtítulo do Cabeçalho</label>
+                  <Input 
+                    name="subtitle" 
+                    value={formData.subtitle} 
+                    onChange={handleChange} 
+                    $primaryColor={primaryColor}
+                    placeholder="Ex: Comunicado Escolar"
+                  />
+                </FormGroup>
+                <FormGroup>
                   <label>Tipo de Fonte</label>
                   <Select name="fontFamily" value={formData.fontFamily || 'Inter'} onChange={handleChange} $primaryColor={primaryColor}>
                     <option value="Inter">Inter</option>
@@ -1060,14 +1071,15 @@ const BilheteGeneratorPanel = () => {
         </div>
       </MainGrid>
 
-      {/* Optimized Print Container */}
       <div style={{ display: 'none' }}>
-        <BilhetePrint ref={componentRef} data={{ 
-          ...formData, 
-          schoolLogo: settings.logo,
-          subtitle: formData.subtitle || 'Comunicado Escolar',
-          content: replaceVariables(formData.content) 
-        }} />
+        <BilhetePrint 
+          ref={componentRef} 
+          data={{ 
+            ...formData, 
+            schoolLogo: settings.logo || schoolLogo,
+            content: replaceVariables(formData.content) 
+          }} 
+        />
       </div>
     </PageContainer>
   );
